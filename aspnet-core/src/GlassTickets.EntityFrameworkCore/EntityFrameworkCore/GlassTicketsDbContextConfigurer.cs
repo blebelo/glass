@@ -7,12 +7,12 @@ namespace GlassTickets.EntityFrameworkCore
     {
         public static void Configure(DbContextOptionsBuilder<GlassTicketsDbContext> builder, string connectionString)
         {
-            builder.UseSqlServer(connectionString);
+            builder.UseNpgsql(connectionString);
         }
 
         public static void Configure(DbContextOptionsBuilder<GlassTicketsDbContext> builder, DbConnection connection)
         {
-            builder.UseSqlServer(connection);
+            builder.UseNpgsql(connection);
         }
     }
 }
