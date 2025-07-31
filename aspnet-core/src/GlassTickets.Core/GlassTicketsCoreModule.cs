@@ -11,6 +11,7 @@ using GlassTickets.Configuration;
 using GlassTickets.Localization;
 using GlassTickets.MultiTenancy;
 using GlassTickets.Timing;
+using System;
 
 namespace GlassTickets
 {
@@ -19,6 +20,7 @@ namespace GlassTickets
     {
         public override void PreInitialize()
         {
+            Clock.Provider = ClockProviders.Utc;
             Configuration.Auditing.IsEnabledForAnonymousUsers = true;
 
             // Declare entity types
