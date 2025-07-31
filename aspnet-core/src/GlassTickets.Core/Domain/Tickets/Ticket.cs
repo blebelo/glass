@@ -1,8 +1,9 @@
 ﻿using Abp.Domain.Entities.Auditing;
+using GlassTickets.Domain.Employees;
 using System;
 using System.Collections.Generic;
 
-namespace GlassTickets.Entities
+namespace GlassTickets.Domain.Tickets
 {
     public class Ticket : FullAuditedEntity<Guid>
     {
@@ -17,7 +18,7 @@ namespace GlassTickets.Entities
         public DateTime? DateClosed { get; set; }
         public string ReasonClosed { get; set; }
         public bool SendUpdates { get; set; }
-        public string CustomerContactNumber { get; set; }
+        public string CustomerNumber { get; set; }
         public virtual ICollection<Employee> AssignedEmployees { get; set; } = new List<Employee>();
 
     }

@@ -1,4 +1,4 @@
-﻿namespace GlassTickets.Entities
+﻿namespace GlassTickets.Domain.Tickets
 {
     public enum PriorityLevelEnum
     {

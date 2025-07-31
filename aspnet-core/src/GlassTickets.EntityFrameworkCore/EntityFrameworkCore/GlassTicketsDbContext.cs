@@ -3,13 +3,19 @@ using Abp.Zero.EntityFrameworkCore;
 using GlassTickets.Authorization.Roles;
 using GlassTickets.Authorization.Users;
 using GlassTickets.MultiTenancy;
+using GlassTickets.Domain.Supervisors;
+using GlassTickets.Domain.Tickets;
+using GlassTickets.Domain.Employees;
 
 namespace GlassTickets.EntityFrameworkCore
 {
     public class GlassTicketsDbContext : AbpZeroDbContext<Tenant, Role, User, GlassTicketsDbContext>
     {
         /* Define a DbSet for each entity of the application */
-        
+        public DbSet<Supervisor> Supervisors { get; set; }
+        public DbSet<Ticket> Tickets { get; set; }
+        public DbSet<Employee> Employees { get; set; }
+
         public GlassTicketsDbContext(DbContextOptions<GlassTicketsDbContext> options)
             : base(options)
         {
