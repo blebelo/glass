@@ -175,7 +175,7 @@
 }
 
 .btnSecondary {
-  background: rgba(255, 255, 255, 0.1) !important;
+  background: transparent !important;
   color: white !important;
   height: auto !important;
   padding: 18px 40px !important;

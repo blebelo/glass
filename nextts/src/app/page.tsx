@@ -10,7 +10,8 @@ import {
   BarChartOutlined,
   LockOutlined,
   ApiOutlined,
-  MenuOutlined
+  MenuOutlined,
+  SearchOutlined
 } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
@@ -37,7 +38,6 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, del
     <Card 
       className={`${styles.featureCard} ${isVisible ? styles.fadeIn : ''}`}
       hoverable
-      bordered={false}
     >
       <div className={styles.featureIcon}>{icon}</div>
       <Title level={3} className={styles.featureTitle}>{title}</Title>
@@ -140,8 +140,7 @@ const LandingPage: React.FC = () => {
         <div className={styles.container}>
           <div className={styles.nav}>
             <div className={styles.logo}>
-              <span className={styles.logoIcon}>🤖</span>
-              Glass
+              <span className={styles.logoIcon}>🤖</span>Glass
             </div>
             
             <div className={styles.desktopMenu}>
@@ -177,6 +176,7 @@ const LandingPage: React.FC = () => {
                 engage, and resolve issues 24/7 with human-like intelligence.
               </Paragraph>
               <div className={styles.ctaButtons}>
+
                 <Button 
                   type="primary" 
                   size="large"
@@ -187,12 +187,14 @@ const LandingPage: React.FC = () => {
                 >
                   Get Started
                 </Button>
+
                 <Button 
                   size="large"
+                  icon={<SearchOutlined />}
                   onClick={() => scrollToSection('features')}
                   className={styles.btnSecondary}
                 >
-                  Learn More
+                  View Tickets
                 </Button>
               </div>
             </div>
