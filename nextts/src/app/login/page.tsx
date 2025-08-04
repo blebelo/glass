@@ -57,13 +57,16 @@ const AuthPage: React.FC = () => {
     try {
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      if (isLogin) {
+      if (values != null) {
         message.success('Login successful! Welcome back.');
         window.location.href = '/dashboard';
       } 
-    } catch (error) {
+    } 
+    catch (error) {
       message.error('Login failed. Please try again.');
-    } finally {
+      console.log(error);
+    } 
+    finally {
       setLoading(false);
     }
   };
@@ -171,7 +174,7 @@ const AuthPage: React.FC = () => {
 
           <div className={styles.authFooter}>
             <Text type="secondary">
-              By continuing, you agree to Glass's Terms of Service and Privacy Policy
+                By continuing, you agree to Glass&apos;s Terms of Service and Privacy Policy
             </Text>
           </div>
         </div>
