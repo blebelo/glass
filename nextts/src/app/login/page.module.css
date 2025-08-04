@@ -90,25 +90,18 @@
 
 /* Back Button */
 .backButton {
-  position: absolute !important;
+  position: absolute ;
   top: 20px;
   left: 20px;
-  color: white !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: white ;
+  border: 1px solid rgba(255, 255, 255, 0.3) ;
   backdrop-filter: blur(10px);
-  border-radius: 50px !important;
-  padding: 8px 20px !important;
-  height: auto !important;
+  border-radius: 50px ;
+  padding: 8px 20px ;
+  height: auto ;
   font-weight: 500;
-  transition: all 0.3s ease !important;
+  transition: all 0.3s ease ;
   z-index: 10;
-}
-
-.backButton:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.5) !important;
-  color: white !important;
-  transform: translateY(-2px);
 }
 
 /* Auth Card */
@@ -178,7 +171,7 @@
   background: transparent;
 }
 
-.formInput ::placeholder{
+.formInput::placeholder{
   color: rgba(255, 255, 255, 0.429); 
 }
 
