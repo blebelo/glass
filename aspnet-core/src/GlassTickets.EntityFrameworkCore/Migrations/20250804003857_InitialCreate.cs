@@ -364,6 +364,8 @@ namespace GlassTickets.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Discriminator = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: false),
+                    Department = table.Column<string>(type: "text", nullable: true),
                     CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
                     LastModificationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -447,6 +449,36 @@ namespace GlassTickets.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AbpWebhookSubscriptions", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Tickets",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ReferenceNumber = table.Column<string>(type: "text", nullable: true),
+                    PriorityLevel = table.Column<int>(type: "integer", nullable: false),
+                    Location = table.Column<string>(type: "text", nullable: true),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    Category = table.Column<string>(type: "text", nullable: true),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    DateCreated = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastUpdated = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DateClosed = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    ReasonClosed = table.Column<string>(type: "text", nullable: true),
+                    SendUpdates = table.Column<bool>(type: "boolean", nullable: false),
+                    CustomerNumber = table.Column<string>(type: "text", nullable: true),
+                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tickets", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -764,6 +796,30 @@ namespace GlassTickets.Migrations
                         name: "FK_AbpWebhookSendAttempts_AbpWebhookEvents_WebhookEventId",
                         column: x => x.WebhookEventId,
                         principalTable: "AbpWebhookEvents",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EmployeeTicket",
+                columns: table => new
+                {
+                    AssignedEmployeesId = table.Column<long>(type: "bigint", nullable: false),
+                    TicketsAssignedId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EmployeeTicket", x => new { x.AssignedEmployeesId, x.TicketsAssignedId });
+                    table.ForeignKey(
+                        name: "FK_EmployeeTicket_AbpUsers_AssignedEmployeesId",
+                        column: x => x.AssignedEmployeesId,
+                        principalTable: "AbpUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_EmployeeTicket_Tickets_TicketsAssignedId",
+                        column: x => x.TicketsAssignedId,
+                        principalTable: "Tickets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1220,6 +1276,11 @@ namespace GlassTickets.Migrations
                 name: "IX_AbpWebhookSendAttempts_WebhookEventId",
                 table: "AbpWebhookSendAttempts",
                 column: "WebhookEventId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EmployeeTicket_TicketsAssignedId",
+                table: "EmployeeTicket",
+                column: "TicketsAssignedId");
         }
 
         /// <inheritdoc />
@@ -1307,6 +1368,9 @@ namespace GlassTickets.Migrations
                 name: "AbpWebhookSubscriptions");
 
             migrationBuilder.DropTable(
+                name: "EmployeeTicket");
+
+            migrationBuilder.DropTable(
                 name: "AbpDynamicEntityProperties");
 
             migrationBuilder.DropTable(
@@ -1320,6 +1384,9 @@ namespace GlassTickets.Migrations
 
             migrationBuilder.DropTable(
                 name: "AbpWebhookEvents");
+
+            migrationBuilder.DropTable(
+                name: "Tickets");
 
             migrationBuilder.DropTable(
                 name: "AbpDynamicProperties");
