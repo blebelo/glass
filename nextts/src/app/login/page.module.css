@@ -88,6 +88,29 @@
   font-size: 16px;
 }
 
+/* Back Button */
+.backButton {
+  position: absolute !important;
+  top: 20px;
+  left: 20px;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  backdrop-filter: blur(10px);
+  border-radius: 50px !important;
+  padding: 8px 20px !important;
+  height: auto !important;
+  font-weight: 500;
+  transition: all 0.3s ease !important;
+  z-index: 10;
+}
+
+.backButton:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  color: white !important;
+  transform: translateY(-2px);
+}
+
 /* Auth Card */
 .authCard {
   background: transparent ;
@@ -185,20 +208,12 @@
   color: white;
   background: transparent;
 }
-ut.ant-input:focus,
-.formInput input.ant-input:active,
-.formInput input.ant-input{
-  color: rgb(212, 212, 212);
-  background: rgba(0, 0, 0, 0);
-}
 
 
 /* Form Options */
 .formOptions {
   margin-bottom: 24px;
 }
-
-
 
 .checkbox {
   color: #c1cccc ;
@@ -417,16 +432,7 @@ ut.ant-input:focus,
   .authCard .ant-card-body {
     padding: 20px ;
   }
-  
-  .socialButtons {
-    margin-bottom: 20px;
-  }
-  
-  .socialButton,
-  .socialButtonSmall {
-    height: 44px ;
-    font-size: 14px ;
-  }
+
   
   .formInput {
     height: 44px ;

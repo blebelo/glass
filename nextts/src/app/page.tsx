@@ -140,8 +140,7 @@ const LandingPage: React.FC = () => {
         <div className={styles.container}>
           <div className={styles.nav}>
             <div className={styles.logo}>
-              <span className={styles.logoIcon}>🤖</span>
-              Glass
+              <span className={styles.logoIcon}>🤖</span>Glass
             </div>
             
             <div className={styles.desktopMenu}>
