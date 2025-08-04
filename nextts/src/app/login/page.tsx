@@ -126,7 +126,7 @@ const AuthPage: React.FC = () => {
                 ]}
               >
                 <Input
-                  prefix={<MailOutlined />}
+                  prefix={<MailOutlined style={{ color: 'white' }}  />}
                   placeholder="Email Address"
                   size="large"
                   className={styles.formInput}
@@ -141,11 +141,11 @@ const AuthPage: React.FC = () => {
                 ]}
               >
                 <Input.Password
-                  prefix={<LockOutlined />}
+                  prefix={<LockOutlined style={{ color: 'white' }}  />}
                   placeholder="Password"
                   size="large"
                   className={styles.formInput}
-                  iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+                  iconRender={(visible) => (visible ? <EyeTwoTone style={{ color: 'white' }} /> : <EyeInvisibleOutlined style={{ color: 'white' }} />)}
                 />
               </Form.Item>
 
@@ -173,7 +173,7 @@ const AuthPage: React.FC = () => {
           </Card>
 
           <div className={styles.authFooter}>
-            <Text type="secondary">
+            <Text className={styles.footerText}>
                 By continuing, you agree to Glass&apos;s Terms of Service and Privacy Policy
             </Text>
           </div>

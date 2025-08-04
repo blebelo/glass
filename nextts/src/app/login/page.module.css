@@ -171,36 +171,34 @@
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) ;
 }
 
-.formInput .ant-input {
-  background: transparent ;
-  border: none ;
-  box-shadow: none ;
-  font-size: 1rem;
+.formInput .anticon {
   color: white;
 }
 
-.formInput .ant-input-prefix {
-  color: #ffffff;
-  margin-right: 12px;
+.formInput input.ant-input {
+  color: white;
+  background: transparent;
 }
 
 .formInput input.ant-input:focus,
-.formInput input.ant-input:active,
-.formInput input.ant-input:not(:placeholder-shown) {
-  color: rgb(212, 212, 212) ;
-  background: transparent ;
+.formInput input.ant-input:active {
+  color: white;
+  background: transparent;
 }
+ut.ant-input:focus,
+.formInput input.ant-input:active,
+.formInput input.ant-input{
+  color: rgb(212, 212, 212);
+  background: rgba(0, 0, 0, 0);
+}
+
 
 /* Form Options */
 .formOptions {
   margin-bottom: 24px;
 }
 
-.loginOptions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+
 
 .checkbox {
   color: #c1cccc ;
@@ -268,16 +266,14 @@
 }
 
 /* Footer */
-.authFooter {
+.authFooter  {
   text-align: center;
-  margin-top: 32px;
-  color: rgba(255, 255, 255, 0.8) ;
+  margin-top: 2rem;
+  color: white;
 }
 
-.authFooter .ant-typography {
-  color: rgba(255, 255, 255, 0.8) ;
-  font-size: 14px;
-  line-height: 1.5;
+.footerText {
+  color: #ffffff70;
 }
 
 /* Floating Elements */
