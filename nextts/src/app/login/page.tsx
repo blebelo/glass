@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   Button, 
   Form, 
@@ -33,6 +34,8 @@ interface IAuthFormData {
 const AuthPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
+  const router = useRouter();
+
 
   useEffect(() => {
     const createFloatingElement = () => {
@@ -59,7 +62,7 @@ const AuthPage: React.FC = () => {
       
       if (values != null) {
         message.success('Login successful! Welcome back.');
-        window.location.href = '/dashboard';
+        router.push('/dashboard');
       } 
     } 
     catch (error) {
@@ -72,7 +75,7 @@ const AuthPage: React.FC = () => {
   };
 
   const goBack = () => {
-    window.location.href = '/';
+    router.push('/');
   };
 
   return (
