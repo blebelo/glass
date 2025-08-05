@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   Button, 
@@ -8,10 +8,10 @@ import {
   Input, 
   Card, 
   Typography, 
-  Divider, 
   Checkbox,
   Layout,
-  message
+  message,
+  Spin
 } from 'antd';
 import {
   LockOutlined,
@@ -20,21 +20,19 @@ import {
   EyeTwoTone,
   ArrowLeftOutlined
 } from '@ant-design/icons';
-import styles from './page.module.css';
+import { useStyles } from './style'
+import { ILogin } from '@/providers/auth-provider/context';
+import { useAuthActions, useAuthState } from '@/providers/auth-provider';
 
 const { Title, Text} = Typography;
 const { Content } = Layout;
 
-interface IAuthFormData {
-  email: string;
-  password: string;
-  rememberMe?: boolean;
-}
-
 const AuthPage: React.FC = () => {
-  const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const router = useRouter();
+  const {isPending} = useAuthState();
+  const authActions = useAuthActions();
+  const { styles } = useStyles(); 
 
 
   useEffect(() => {
@@ -55,14 +53,11 @@ const AuthPage: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleSubmit = async (values: IAuthFormData) => {
-
+  const handleSubmit = async (values: ILogin) => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      authActions.loginUser(values)
       if (values != null) {
-        message.success('Login successful! Welcome back.');
-        router.push('/dashboard');
+        router.push('admin/dashboard');
       } 
     } 
     catch (error) {
@@ -70,7 +65,6 @@ const AuthPage: React.FC = () => {
       console.log(error);
     } 
     finally {
-      setLoading(false);
     }
   };
 
@@ -82,7 +76,7 @@ const AuthPage: React.FC = () => {
     <Layout className={styles.layout}>
       <Content className={styles.authContainer}>
         <div className={styles.backgroundOverlay}></div>
-          
+
           <Button 
             type="text" 
             icon={<ArrowLeftOutlined />}
@@ -103,6 +97,12 @@ const AuthPage: React.FC = () => {
           </div>
 
           <Card className={styles.authCard}>
+            {isPending && (
+              <div className={styles.spinnerOverlay}>
+                <Spin size="large" />
+              </div>
+            )}
+
             <div className={styles.cardHeader}>
               <Title level={2} className={styles.authTitle}>
                 Welcome Back
@@ -112,9 +112,6 @@ const AuthPage: React.FC = () => {
               </Text>
             </div>
 
-            <Divider className={styles.divider}>
-            </Divider>
-
             <Form
               form={form}
               onFinish={handleSubmit}
@@ -122,10 +119,10 @@ const AuthPage: React.FC = () => {
               className={styles.authForm}
             >
               <Form.Item
-                name="email"
+                name="userNameOrEmailAddres"
                 rules={[
-                  { required: true, message: 'Please enter your email' },
-                  { type: 'email', message: 'Please enter a valid email' }
+                  { required: true, message: 'Please enter your email or username' },
+                  
                 ]}
               >
                 <Input
@@ -153,11 +150,9 @@ const AuthPage: React.FC = () => {
               </Form.Item>
 
               <div className={styles.formOptions}>
-                <div className={styles.loginOptions}>
                   <Form.Item name="rememberMe" valuePropName="checked" noStyle>
                     <Checkbox className={styles.checkbox}>Remember me</Checkbox>
                   </Form.Item>
-                </div>
               </div>
 
               <Form.Item>
@@ -165,7 +160,6 @@ const AuthPage: React.FC = () => {
                   type="primary"
                   htmlType="submit"
                   size="large"
-                  loading={loading}
                   className={styles.submitButton}
                   block
                 >
