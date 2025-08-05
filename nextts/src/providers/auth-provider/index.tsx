@@ -15,13 +15,18 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
 
     const loginUser = async (user: ILogin) => {
         dispatch(loginUserPending());
-         const endpoint = 'TokenAuth/Authenticate';
+        const endpoint = 'TokenAuth/Authenticate';
         
+        console.log(user)
         await instance.post(endpoint, user)
         .then(
             (response) => {
                 const token = response.data.result.accessToken;
 
+                if (token == undefined || null)
+                    {
+                        throw new Error('Token Is Null')
+                    }
                 const decoded = decodeToken(token);
                 const userRole = decoded[AbpTokenProperies.role];
                 const userId = decoded[AbpTokenProperies.nameidentifier]
@@ -37,7 +42,8 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
             (e) => {
                 dispatch(loginUserError());
                 console.error('Login Failed', e)
-            })
+            }
+        )        
     };
 
     return (

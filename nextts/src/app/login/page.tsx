@@ -18,7 +18,9 @@ import {
   MailOutlined,
   EyeInvisibleOutlined,
   EyeTwoTone,
-  ArrowLeftOutlined
+  ArrowLeftOutlined,
+  ExclamationCircleOutlined,
+  CheckCircleOutlined
 } from '@ant-design/icons';
 import { useStyles } from './style'
 import { ILogin } from '@/providers/auth-provider/context';
@@ -30,7 +32,7 @@ const { Content } = Layout;
 const AuthPage: React.FC = () => {
   const [form] = Form.useForm();
   const router = useRouter();
-  const {isPending} = useAuthState();
+  const { isPending, isError, isSuccess} = useAuthState();
   const authActions = useAuthActions();
   const { styles } = useStyles(); 
 
@@ -55,10 +57,7 @@ const AuthPage: React.FC = () => {
 
   const handleSubmit = async (values: ILogin) => {
     try {
-      authActions.loginUser(values)
-      if (values != null) {
-        router.push('admin/dashboard');
-      } 
+      authActions.loginUser(values);
     } 
     catch (error) {
       message.error('Login failed. Please try again.');
@@ -97,9 +96,28 @@ const AuthPage: React.FC = () => {
           </div>
 
           <Card className={styles.authCard}>
+
             {isPending && (
-              <div className={styles.spinnerOverlay}>
+              <div className={styles.stateOverlay}>
                 <Spin size="large" />
+              </div>
+            )}
+
+            {isError && (
+              <div className={styles.stateOverlay}>
+                <div className={styles.stateContent}>
+                  <ExclamationCircleOutlined className={styles.errorIcon} />
+                  <p>Cannot sign up at this time. Please try again later.</p>
+                </div>
+              </div>
+            )}
+
+            {isSuccess && (
+              <div className={styles.stateOverlay}>
+                <div className={styles.stateContent}>
+                  <CheckCircleOutlined className={styles.successIcon} />
+                  <p>Successfully signed up!</p>
+                </div>
               </div>
             )}
 
@@ -119,7 +137,7 @@ const AuthPage: React.FC = () => {
               className={styles.authForm}
             >
               <Form.Item
-                name="userNameOrEmailAddres"
+                name="userNameOrEmailAddress"
                 rules={[
                   { required: true, message: 'Please enter your email or username' },
                   
@@ -127,7 +145,7 @@ const AuthPage: React.FC = () => {
               >
                 <Input
                   prefix={<MailOutlined style={{ color: 'white' }}  />}
-                  placeholder="Email Address"
+                  placeholder="Email / Username"
                   size="large"
                   className={styles.formInput}
                 />

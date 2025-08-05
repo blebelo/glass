@@ -255,6 +255,44 @@ formInput: css`
       background-color: transparent !important;
     }
   `,
+    stateOverlay: {
+    position: 'absolute' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    backdropFilter: 'blur(2px)',
+    zIndex: 1000,
+    borderRadius: '8px',
+  },
+  
+  stateContent: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'center',
+    gap: '12px',
+    padding: '24px',
+    backgroundColor: '#ffffff',
+    borderRadius: '12px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+    border: '1px solid #f0f0f0',
+    textAlign: 'center' as const,
+    maxWidth: '300px',
+  },
+  
+  errorIcon: {
+    fontSize: '48px',
+    color: '#ff4d4f',
+  },
+  
+  successIcon: {
+    fontSize: '48px',
+    color: '#52c41a',
+  },
 
   // Form Options
   formOptions: css`
