@@ -5,21 +5,21 @@ using Abp.Domain.Repositories;
 using Abp.Linq.Extensions;
 using GlassTickets.Domain.Employees;
 using GlassTickets.Domain.Tickets;
-using GlassTickets.Tickets.Dto;
+using GlassTickets.Services.Tickets.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 
-namespace GlassTickets.Tickets
+namespace GlassTickets.Services.Tickets
 {
     public class TicketAppService : ApplicationService, ITicketAppService
     {
         private readonly IRepository<Ticket, Guid> _ticketRepository;
-        private readonly IRepository<Employee, long> _employeeRepository;
+        private readonly IRepository<Employee, Guid> _employeeRepository;
 
-        public TicketAppService(IRepository<Ticket, Guid> ticketRepository, IRepository<Employee, long> employeeRepository)
+        public TicketAppService(IRepository<Ticket, Guid> ticketRepository, IRepository<Employee, Guid> employeeRepository)
         {
             _ticketRepository = ticketRepository;
             _employeeRepository = employeeRepository;
@@ -60,14 +60,14 @@ namespace GlassTickets.Tickets
             return Task.FromResult(new PagedResultDto<TicketDto>(totalCount, ticketDtos));
         }
 
-        public async Task<TicketDto> AssignEmployeeAsync(Guid input, List<long> employeeIds)
+        public async Task<TicketDto> AssignEmployeeAsync(Guid ticketId, List<Guid> employeeIds)
         {
-            var ticket = await _ticketRepository.GetAsync(input);
+            var ticket = await _ticketRepository.GetAsync(ticketId);
             var employees = await _employeeRepository.GetAllListAsync(e => employeeIds.Contains(e.Id));
 
             if (ticket == null)
             {
-                throw new EntityNotFoundException(typeof(Ticket), input);
+                throw new EntityNotFoundException(typeof(Ticket), ticketId);
             }
 
             if (employees == null || !employees.Any())
@@ -81,7 +81,7 @@ namespace GlassTickets.Tickets
             return ObjectMapper.Map<TicketDto>(ticket);
         }
 
-        public async Task<TicketDto> CloseTicketAsync(Guid input, long employeeId)
+        public async Task<TicketDto> CloseTicketAsync(Guid input, Guid employeeId)
         {
             var ticket = await _ticketRepository.GetAsync(input);
             var employee = await _employeeRepository.GetAsync(employeeId);

@@ -84,6 +84,18 @@ namespace GlassTickets.EntityFrameworkCore.Seed.Tenants
                 _context.UserRoles.Add(new UserRole(_tenantId, adminUser.Id, adminRole.Id));
                 _context.SaveChanges();
             }
+
+            var employeeRole = _context.Roles
+                .IgnoreQueryFilters()
+                .FirstOrDefault(e => e.TenantId == _tenantId && e.Name == StaticRoleNames.Tenants.Employee);
+
+            if (employeeRole == null)
+            {
+                employeeRole = _context.Roles
+                    .Add(new Role(null, "Employee", "Emplyee") { IsStatic = true })
+                    .Entity;
+                _context.SaveChanges();
+            }
         }
     }
 }

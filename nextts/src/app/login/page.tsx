@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   Button, 
@@ -10,7 +10,6 @@ import {
   Typography, 
   Checkbox,
   Layout,
-  message,
   Spin
 } from 'antd';
 import {
@@ -35,7 +34,28 @@ const AuthPage: React.FC = () => {
   const { isPending, isError, isSuccess} = useAuthState();
   const authActions = useAuthActions();
   const { styles } = useStyles(); 
+  const [showError, setShowError] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
+  useEffect(() => {
+    if (isError) {
+      setShowError(true);
+      const timer = setTimeout(() => {
+        setShowError(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isError]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      setShowSuccess(true);
+      const timer = setTimeout(() => {
+        setShowSuccess(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isSuccess]);
 
   useEffect(() => {
     const createFloatingElement = () => {
@@ -55,16 +75,14 @@ const AuthPage: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+
   const handleSubmit = async (values: ILogin) => {
     try {
       authActions.loginUser(values);
     } 
     catch (error) {
-      message.error('Login failed. Please try again.');
       console.log(error);
     } 
-    finally {
-    }
   };
 
   const goBack = () => {
@@ -103,7 +121,7 @@ const AuthPage: React.FC = () => {
               </div>
             )}
 
-            {isError && (
+            {showError && (
               <div className={styles.spinnerOverlay}>
                 <div className={styles.stateContent}>
                   <ExclamationCircleOutlined className={styles.errorIcon} />
@@ -112,7 +130,7 @@ const AuthPage: React.FC = () => {
               </div>
             )}
 
-            {isSuccess && (
+            {showSuccess && (
               <div className={styles.spinnerOverlay}>
                 <div className={styles.stateContent}>
                   <CheckCircleOutlined className={styles.successIcon} />

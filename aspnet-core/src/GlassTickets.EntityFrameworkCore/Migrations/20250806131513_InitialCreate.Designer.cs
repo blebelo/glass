@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GlassTickets.Migrations
 {
     [DbContext(typeof(GlassTicketsDbContext))]
-    [Migration("20250804003857_InitialCreate")]
+    [Migration("20250806131513_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -1382,8 +1382,8 @@ namespace GlassTickets.Migrations
 
             modelBuilder.Entity("EmployeeTicket", b =>
                 {
-                    b.Property<long>("AssignedEmployeesId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("AssignedEmployeesId")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("TicketsAssignedId")
                         .HasColumnType("uuid");
@@ -1502,11 +1502,6 @@ namespace GlassTickets.Migrations
                     b.Property<DateTime?>("DeletionTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("character varying(13)");
-
                     b.Property<string>("EmailAddress")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -1601,10 +1596,110 @@ namespace GlassTickets.Migrations
                     b.HasIndex("TenantId", "NormalizedUserName");
 
                     b.ToTable("AbpUsers");
+                });
 
-                    b.HasDiscriminator().HasValue("User");
+            modelBuilder.Entity("GlassTickets.Domain.Employees.Employee", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
-                    b.UseTphMappingStrategy();
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Department")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EmailAddress")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Surname")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("UserAccountId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserAccountId");
+
+                    b.ToTable("Employees");
+                });
+
+            modelBuilder.Entity("GlassTickets.Domain.Supervisors.Supervisor", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Department")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EmailAddress")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Surname")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("UserAccountId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserAccountId");
+
+                    b.ToTable("Supervisors");
                 });
 
             modelBuilder.Entity("GlassTickets.Domain.Tickets.Ticket", b =>
@@ -1792,32 +1887,6 @@ namespace GlassTickets.Migrations
                     b.HasDiscriminator().HasValue("UserPermissionSetting");
                 });
 
-            modelBuilder.Entity("GlassTickets.Domain.Employees.Employee", b =>
-                {
-                    b.HasBaseType("GlassTickets.Authorization.Users.User");
-
-                    b.Property<string>("Department")
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("text");
-
-                    b.ToTable("AbpUsers");
-
-                    b.HasDiscriminator().HasValue("Employee");
-                });
-
-            modelBuilder.Entity("GlassTickets.Domain.Supervisors.Supervisor", b =>
-                {
-                    b.HasBaseType("GlassTickets.Authorization.Users.User");
-
-                    b.Property<string>("Department")
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("text");
-
-                    b.ToTable("AbpUsers");
-
-                    b.HasDiscriminator().HasValue("Supervisor");
-                });
-
             modelBuilder.Entity("Abp.Authorization.Roles.RoleClaim", b =>
                 {
                     b.HasOne("GlassTickets.Authorization.Roles.Role", null)
@@ -1996,6 +2065,24 @@ namespace GlassTickets.Migrations
                     b.Navigation("DeleterUser");
 
                     b.Navigation("LastModifierUser");
+                });
+
+            modelBuilder.Entity("GlassTickets.Domain.Employees.Employee", b =>
+                {
+                    b.HasOne("GlassTickets.Authorization.Users.User", "UserAccount")
+                        .WithMany()
+                        .HasForeignKey("UserAccountId");
+
+                    b.Navigation("UserAccount");
+                });
+
+            modelBuilder.Entity("GlassTickets.Domain.Supervisors.Supervisor", b =>
+                {
+                    b.HasOne("GlassTickets.Authorization.Users.User", "UserAccount")
+                        .WithMany()
+                        .HasForeignKey("UserAccountId");
+
+                    b.Navigation("UserAccount");
                 });
 
             modelBuilder.Entity("GlassTickets.MultiTenancy.Tenant", b =>
