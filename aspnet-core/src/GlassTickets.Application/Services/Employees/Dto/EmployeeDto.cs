@@ -17,8 +17,7 @@ namespace GlassTickets.Services.Employees.Dto
         public string PhoneNumber { get; set; }
         public string Department { get; set; }
         public string UserName { get; set; }
-        public string Password { get; set; }
         public User UserAccount { get; set; }
-        public List<TicketDto> TicketsAssigned { get; set; }
+        public List<TicketMinimalDto> TicketsAssigned { get; set; }
     }
 }

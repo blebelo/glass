@@ -55,7 +55,7 @@ namespace GlassTickets.Services.Employees
 
             return ObjectMapper.Map<EmployeeDto>(employee);
         }
-        public async Task<EmployeeDto> UpdateDeveloperAsync(UpdateSupervisorDto input)
+        public async Task<EmployeeDto> UpdateEmployeeAsync(UpdateEmployeeDto input)
         {
             var employee = await _employeeRepository
                 .GetAll()

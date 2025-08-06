@@ -71,8 +71,7 @@ namespace GlassTickets.Domain.Employees
             }
             catch (Exception e)
             {
-                Logger.Warn(e.ToString);
-                throw new UserFriendlyException(e.ToString());
+                throw new UserFriendlyException(e.Message);
             }
         }
 

@@ -10,7 +10,6 @@ namespace GlassTickets.Services.Employees.Dto
     [AutoMap(typeof(Employee))]
     public class EmployeeMinimalDto : EntityDto<Guid>
     {
-        public long Id { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
         public string EmailAddress { get; set; }

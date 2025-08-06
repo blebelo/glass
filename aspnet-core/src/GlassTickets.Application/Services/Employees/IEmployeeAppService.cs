@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace GlassTickets.Services.Employees
 {
-    public interface IEmployeeAppService: IAsyncCrudAppService<EmployeeDto, Guid, PagedAndSortedResultRequestDto, CreateEmployeeDto, UpdateSupervisorDto>
+    public interface IEmployeeAppService: IAsyncCrudAppService<EmployeeDto, Guid, PagedAndSortedResultRequestDto, CreateEmployeeDto, UpdateEmployeeDto>
     {
         Task<EmployeeMinimalDto> GetEmployeeProfileAsync();
-        Task<UpdateSupervisorDto> UpdateedmployeeAsync(UpdateSupervisorDto dto);
+        Task<EmployeeDto> UpdatEmployeeAsync(UpdateEmployeeDto dto);
     }
 }

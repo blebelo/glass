@@ -37,8 +37,7 @@ namespace GlassTickets.Domain.Supervisors
                     Name = name,
                     Surname = surname,
                     UserName = username,
-                    EmailAddress = email,
-                    Password = password
+                    EmailAddress = email
                 };
 
                 var userCreationResult = await _userManager.CreateAsync(user, password);
@@ -67,7 +66,7 @@ namespace GlassTickets.Domain.Supervisors
             }
             catch (Exception e)
             {
-                throw new UserFriendlyException(e.ToString());
+                throw new UserFriendlyException(e.Message);
             }
         }
 

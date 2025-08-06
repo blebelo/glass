@@ -92,7 +92,7 @@ namespace GlassTickets.EntityFrameworkCore.Seed.Tenants
             if (employeeRole == null)
             {
                 employeeRole = _context.Roles
-                    .Add(new Role(null, "Employee", "Emplyee") { IsStatic = true })
+                    .Add(new Role(_tenantId, "Employee", "Emplyee") { IsStatic = true })
                     .Entity;
                 _context.SaveChanges();
             }
