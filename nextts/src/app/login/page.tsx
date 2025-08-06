@@ -98,13 +98,13 @@ const AuthPage: React.FC = () => {
           <Card className={styles.authCard}>
 
             {isPending && (
-              <div className={styles.stateOverlay}>
+              <div className={styles.spinnerOverlay}>
                 <Spin size="large" />
               </div>
             )}
 
             {isError && (
-              <div className={styles.stateOverlay}>
+              <div className={styles.spinnerOverlay}>
                 <div className={styles.stateContent}>
                   <ExclamationCircleOutlined className={styles.errorIcon} />
                   <p>Cannot sign up at this time. Please try again later.</p>
@@ -113,10 +113,10 @@ const AuthPage: React.FC = () => {
             )}
 
             {isSuccess && (
-              <div className={styles.stateOverlay}>
+              <div className={styles.spinnerOverlay}>
                 <div className={styles.stateContent}>
                   <CheckCircleOutlined className={styles.successIcon} />
-                  <p>Successfully signed up!</p>
+                  <p>Successfully signed in!</p>
                 </div>
               </div>
             )}
