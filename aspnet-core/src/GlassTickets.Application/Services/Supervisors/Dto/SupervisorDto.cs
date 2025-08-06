@@ -4,7 +4,7 @@ using GlassTickets.Authorization.Users;
 using GlassTickets.Domain.Supervisors;
 using System;
 
-namespace GlassTickets.Services.Employees.Dto
+namespace GlassTickets.Services.Supervisors.Dto
 {
     [AutoMap(typeof(Supervisor))]
     public class SupervisorDto : EntityDto<Guid>

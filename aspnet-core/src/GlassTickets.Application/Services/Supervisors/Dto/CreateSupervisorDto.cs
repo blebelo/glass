@@ -1,7 +1,5 @@
-﻿using Abp.Application.Services.Dto;
-using Abp.AutoMapper;
+﻿using Abp.AutoMapper;
 using GlassTickets.Domain.Supervisors;
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace GlassTickets.Services.Supervisors.Dto

@@ -19,7 +19,7 @@ namespace GlassTickets.Domain.Supervisors
             _supervisorRepository = supervisorRepository;
         }
 
-        public async Task<Supervisors.Supervisor> CreateEmployeeAsync
+        public async Task<Supervisors.Supervisor> CreateSupervisorAsync
             (
                 string name,
                 string surname,
