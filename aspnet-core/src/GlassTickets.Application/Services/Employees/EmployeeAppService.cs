@@ -13,12 +13,12 @@ using System.Threading.Tasks;
 
 namespace GlassTickets.Services.Employees
 {
-    public class SupervisorAppService : AsyncCrudAppService<Employee, EmployeeDto, Guid, PagedAndSortedResultRequestDto, CreateEmployeeDto, UpdateEmployeeDto>
+    public class EmployeeAppService : AsyncCrudAppService<Employee, EmployeeDto, Guid, PagedAndSortedResultRequestDto, CreateEmployeeDto, UpdateEmployeeDto>
     {
         private readonly IRepository<Employee, Guid> _employeeRepository;
         private readonly EmployeeManager _employeeManager;
 
-        public SupervisorAppService(IRepository<Employee, Guid> employeeRepository, EmployeeManager employeeManager) : base(employeeRepository)
+        public EmployeeAppService(IRepository<Employee, Guid> employeeRepository, EmployeeManager employeeManager) : base(employeeRepository)
         {
             _employeeRepository = employeeRepository;
             _employeeManager = employeeManager;
@@ -37,6 +37,7 @@ namespace GlassTickets.Services.Employees
             );
             return ObjectMapper.Map<EmployeeDto>(employee);
         }
+
         public async Task<EmployeeDto> GetEmployeeProfileAsync()
         {
             var employee = await _employeeRepository
@@ -51,6 +52,7 @@ namespace GlassTickets.Services.Employees
 
             return ObjectMapper.Map<EmployeeDto>(employee);
         }
+
         public async Task<EmployeeDto> UpdateEmployeeAsync(UpdateEmployeeDto input)
         {
             var employee = await _employeeRepository

@@ -1,13 +1,12 @@
 ﻿using Abp.Application.Services.Dto;
 using Abp.AutoMapper;
-using GlassTickets.Domain.Employees;
 using GlassTickets.Domain.Supervisors;
 using System;
 
 namespace GlassTickets.Services.Supervisors.Dto
 {
-    [AutoMap(typeof(Domain.Supervisors.Supervisor))]
-    public class UpdateSupervisorDto: EntityDto<Guid>
+    [AutoMap(typeof(Supervisor))]
+    public class UpdateSupervisorDto : EntityDto<Guid>
     {
         public string Name { get; set; }
         public string Surname { get; set; }
