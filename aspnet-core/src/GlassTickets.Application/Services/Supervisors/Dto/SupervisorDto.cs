@@ -1,21 +1,20 @@
-﻿using Abp.Domain.Entities.Auditing;
+﻿using Abp.Application.Services.Dto;
+using Abp.AutoMapper;
 using GlassTickets.Authorization.Users;
+using GlassTickets.Domain.Supervisors;
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace GlassTickets.Domain.Shared
+namespace GlassTickets.Services.Employees.Dto
 {
-    public abstract class StaffMember : FullAuditedEntity<Guid>
+    [AutoMap(typeof(Supervisor))]
+    public class SupervisorDto : EntityDto<Guid>
     {
         public string Name { get; set; }
         public string Surname { get; set; }
         public string EmailAddress { get; set; }
         public string PhoneNumber { get; set; }
         public string Department { get; set; }
-        [NotMapped]
         public string UserName { get; set; }
-        [NotMapped]
-        public string Password { get; set; }
         public User UserAccount { get; set; }
     }
 }

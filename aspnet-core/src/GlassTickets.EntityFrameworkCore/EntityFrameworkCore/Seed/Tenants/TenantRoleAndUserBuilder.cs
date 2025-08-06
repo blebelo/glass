@@ -68,7 +68,6 @@ namespace GlassTickets.EntityFrameworkCore.Seed.Tenants
             }
 
             // Admin user
-
             var adminUser = _context.Users.IgnoreQueryFilters().FirstOrDefault(u => u.TenantId == _tenantId && u.UserName == AbpUserBase.AdminUserName);
             if (adminUser == null)
             {
@@ -82,6 +81,18 @@ namespace GlassTickets.EntityFrameworkCore.Seed.Tenants
 
                 // Assign Admin role to admin user
                 _context.UserRoles.Add(new UserRole(_tenantId, adminUser.Id, adminRole.Id));
+                _context.SaveChanges();
+            }
+
+            var employeeRole = _context.Roles
+                .IgnoreQueryFilters()
+                .FirstOrDefault(e => e.TenantId == _tenantId && e.Name == StaticRoleNames.Tenants.Employee);
+
+            if (employeeRole == null)
+            {
+                employeeRole = _context.Roles
+                    .Add(new Role(_tenantId, "Employee", "Emplyee") { IsStatic = true })
+                    .Entity;
                 _context.SaveChanges();
             }
         }

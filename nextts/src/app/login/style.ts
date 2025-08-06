@@ -153,8 +153,8 @@ export const useStyles = createStyles({
     left: 0;
     height: 100%;
     width: 100%;
-    background: rgba(95, 56, 185, 0.3);
-    backdrop-filter: blur(10px);
+    background: rgba(99, 64, 160, 0.35);
+    backdrop-filter: blur(5px);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -255,42 +255,28 @@ formInput: css`
       background-color: transparent !important;
     }
   `,
-    stateOverlay: {
-    position: 'absolute' as const,
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    backdropFilter: 'blur(2px)',
-    zIndex: 1000,
-    borderRadius: '8px',
-  },
-  
   stateContent: {
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     alignItems: 'center',
     gap: '12px',
     padding: '24px',
-    backgroundColor: '#ffffff',
+    backgroundColor: 'rgba(99, 64, 160, 0.35)',
+    backdropFilter: 'blur(15px)',
     borderRadius: '12px',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-    border: '1px solid #f0f0f0',
+    border: '1px solid #f0f0f053',
     textAlign: 'center' as const,
     maxWidth: '300px',
   },
   
   errorIcon: {
-    fontSize: '48px',
+    fontSize: '3rem',
     color: '#ff4d4f',
   },
   
   successIcon: {
-    fontSize: '48px',
+    fontSize: '3rem',
     color: '#52c41a',
   },
 

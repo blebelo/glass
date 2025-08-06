@@ -29,7 +29,6 @@ import {
   FilterOutlined,
   MoreOutlined,
   UserOutlined,
-  ClockCircleOutlined,
   ExclamationCircleOutlined,
   CheckCircleOutlined,
   SyncOutlined,
@@ -193,15 +192,15 @@ const SupervisorDashboard = () => {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'open': return <ExclamationCircleOutlined />;
-      case 'in_progress': return <SyncOutlined spin />;
-      case 'escalated': return <ArrowUpOutlined />;
-      case 'resolved': return <CheckCircleOutlined />;
-      default: return <ClockCircleOutlined />;
-    }
-  };
+//   const getStatusIcon = (status: string) => {
+//     switch (status) {
+//       case 'open': return <ExclamationCircleOutlined />;
+//       case 'in_progress': return <SyncOutlined spin />;
+//       case 'escalated': return <ArrowUpOutlined />;
+//       case 'resolved': return <CheckCircleOutlined />;
+//       default: return <ClockCircleOutlined />;
+//     }
+//   };
 
   const ticketColumns = [
     {
