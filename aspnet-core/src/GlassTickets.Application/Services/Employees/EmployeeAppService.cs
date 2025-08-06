@@ -1,4 +1,5 @@
 ﻿using Abp.Application.Services;
+using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
 using Abp.UI;
 using AutoMapper.Internal.Mappers;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace GlassTickets.Services.Employees
 {
-    public class SupervisorAppService : AsyncCrudAppService<Employee, CreateEmployeeDto, Guid>
+    public class SupervisorAppService : AsyncCrudAppService<Employee, EmployeeDto, Guid, PagedAndSortedResultRequestDto, CreateEmployeeDto, UpdateEmployeeDto>
     {
         private readonly IRepository<Employee, Guid> _employeeRepository;
         private readonly EmployeeManager _employeeManager;
@@ -23,13 +24,8 @@ namespace GlassTickets.Services.Employees
             _employeeManager = employeeManager;
         }
 
-        public override async Task<CreateEmployeeDto> CreateAsync(CreateEmployeeDto input)
+        public override async Task<EmployeeDto> CreateAsync(CreateEmployeeDto input)
         {
-            //var existingEmployee = await _employeeRepository.FirstOrDefaultAsync(e => e.UserName == input.UserName);
-            //if (existingEmployee != null)
-            //{
-            //    throw new UserFriendlyException("An employee with this username already exists.");
-            //}
             var employee = await _employeeManager.CreateEmployeeAsync(
                 input.Name,
                 input.Surname,
@@ -39,7 +35,7 @@ namespace GlassTickets.Services.Employees
                 input.PhoneNumber,
                 input.Department
             );
-            return ObjectMapper.Map<CreateEmployeeDto>(employee);
+            return ObjectMapper.Map<EmployeeDto>(employee);
         }
         public async Task<EmployeeDto> GetEmployeeProfileAsync()
         {

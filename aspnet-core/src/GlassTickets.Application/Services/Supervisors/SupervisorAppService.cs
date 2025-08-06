@@ -1,4 +1,5 @@
 ﻿using Abp.Application.Services;
+using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
 using Abp.UI;
 using GlassTickets.Domain.Supervisors;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace GlassTickets.Services.Supervisors
 {
-    public class SupervisorAppService : AsyncCrudAppService<Supervisor, CreateSupervisorDto, Guid>
+    public class SupervisorAppService : AsyncCrudAppService<Supervisor, SupervisorDto, Guid, PagedAndSortedResultRequestDto, CreateSupervisorDto, UpdateSupervisorDto>
     {
         private readonly IRepository<Supervisor, Guid> _supervisorRepository;
         private readonly SupervisorManager _supervisorManager;
@@ -22,7 +23,7 @@ namespace GlassTickets.Services.Supervisors
             _supervisorManager = supervisorManager;
         }
 
-        public override async Task<CreateSupervisorDto> CreateAsync(CreateSupervisorDto input)
+        public override async Task<SupervisorDto> CreateAsync(CreateSupervisorDto input)
         {
 
             var employee = await _supervisorManager.CreateEmployeeAsync(
@@ -34,21 +35,21 @@ namespace GlassTickets.Services.Supervisors
                 input.PhoneNumber,
                 input.Department
             );
-            return ObjectMapper.Map<CreateSupervisorDto>(employee);
+            return ObjectMapper.Map<SupervisorDto>(employee);
         }
-        public async Task<EmployeeDto> GetEmployeeProfileAsync()
+        public async Task<SupervisorDto> GetEmployeeProfileAsync()
         {
-            var employee = await _supervisorRepository
+            var supervisor = await _supervisorRepository
                 .GetAll()
                 .Include(e => e.UserAccount)
                 .FirstOrDefaultAsync(e => e.UserAccount != null && e.UserAccount.Id == AbpSession.UserId.Value);
 
-            if (employee == null)
+            if (supervisor == null)
             {
                 throw new UserFriendlyException("Profile not found.");
             }
 
-            return ObjectMapper.Map<EmployeeDto>(employee);
+            return ObjectMapper.Map<SupervisorDto>(supervisor);
         }
         public async Task<SupervisorDto> UpdateSupervisorAsync(UpdateSupervisorDto input)
         {

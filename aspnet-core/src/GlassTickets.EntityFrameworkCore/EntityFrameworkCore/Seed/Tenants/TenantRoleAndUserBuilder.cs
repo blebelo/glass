@@ -68,7 +68,6 @@ namespace GlassTickets.EntityFrameworkCore.Seed.Tenants
             }
 
             // Admin user
-
             var adminUser = _context.Users.IgnoreQueryFilters().FirstOrDefault(u => u.TenantId == _tenantId && u.UserName == AbpUserBase.AdminUserName);
             if (adminUser == null)
             {
