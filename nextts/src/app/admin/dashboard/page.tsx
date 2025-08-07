@@ -64,7 +64,6 @@ const SupervisorDashboard: React.FC = () => {
   const ticketActions = useTicketActions();
   const tickets = ticketData.tickets;
 
-
   useEffect(() => {
     const defaultConstants: IConstants = {
       priorityLevels: {
