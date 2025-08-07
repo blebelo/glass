@@ -17,11 +17,11 @@ namespace GlassTickets.Services.Tickets.Dto
         public string Category { get; set; }
         public string Description { get; set; }
         public DateTime DateCreated { get; set; }
-        public DateTime LastUpdated { get; set; }
+        public DateTime LastUpdated { get; set; } 
         public DateTime? DateClosed { get; set; }
         public string ReasonClosed { get; set; }
         public bool SendUpdates { get; set; }
-        public string CustomerNumber { get; set; }
-        public List<EmployeeDto> AssignedEmployees { get; set; }
+        public string CustomerNumber { get; set; } 
+        public List<ViewEmployeeDto> AssignedEmployees { get; set; }
     }
 }

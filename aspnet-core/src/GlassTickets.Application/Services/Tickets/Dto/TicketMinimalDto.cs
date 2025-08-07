@@ -1,8 +1,6 @@
 ﻿using Abp.Application.Services.Dto;
 using Abp.AutoMapper;
 using GlassTickets.Domain.Tickets;
-using GlassTickets.Services.Employees.Dto;
-using System.Collections.Generic;
 
 namespace GlassTickets.Services.Tickets.Dto
 {
@@ -18,6 +16,5 @@ namespace GlassTickets.Services.Tickets.Dto
         public string ReasonClosed { get; set; }
         public bool SendUpdates { get; set; }
         public string CustomerNumber { get; set; }
-        public List<EmployeeMinimalDto> AssignedEmployees { get; set; }
     }
 }

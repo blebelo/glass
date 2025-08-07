@@ -28,6 +28,7 @@ namespace GlassTickets.Services.Tickets
         public Task<TicketDto> CreateAsync(TicketDto input)
         {
             var ticket = ObjectMapper.Map<Ticket>(input);
+            ticket.DateCreated = DateTime.Now;
             ticket = _ticketRepository.Insert(ticket);
             return Task.FromResult(ObjectMapper.Map<TicketDto>(ticket));
         }
@@ -35,9 +36,9 @@ namespace GlassTickets.Services.Tickets
         public Task<TicketDto> UpdateAsync(TicketDto input)
         {
             var ticket = ObjectMapper.Map<Ticket>(input);
+            ticket.LastUpdated = DateTime.Now;
             ticket = _ticketRepository.Update(ticket);
             return Task.FromResult(ObjectMapper.Map<TicketDto>(ticket));
-
         }
 
         public Task DeleteAsync(Guid input)
@@ -60,7 +61,7 @@ namespace GlassTickets.Services.Tickets
             return Task.FromResult(new PagedResultDto<TicketDto>(totalCount, ticketDtos));
         }
 
-        public async Task<TicketDto> AssignEmployeeAsync(Guid ticketId, List<Guid> employeeIds)
+        public async Task<TicketDto> AssignEmployeesAsync(Guid ticketId, List<Guid> employeeIds)
         {
             var ticket = await _ticketRepository.GetAsync(ticketId);
             var employees = await _employeeRepository.GetAllListAsync(e => employeeIds.Contains(e.Id));
@@ -80,7 +81,7 @@ namespace GlassTickets.Services.Tickets
             ticket = await _ticketRepository.UpdateAsync(ticket);
             return ObjectMapper.Map<TicketDto>(ticket);
         }
-
+                     
         public async Task<TicketDto> CloseTicketAsync(Guid input, Guid employeeId)
         {
             var ticket = await _ticketRepository.GetAsync(input);
@@ -105,6 +106,7 @@ namespace GlassTickets.Services.Tickets
 
             ticket.Status = StatusEnum.Closed;
             ticket.DateClosed = DateTime.Now;
+
             ticket.ReasonClosed = "Ticket has been resolved.";
 
             _ticketRepository.UpdateAsync(ticket);
