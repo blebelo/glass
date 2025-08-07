@@ -87,7 +87,7 @@ const SupervisorDashboard: React.FC = () => {
   useEffect(() => {
     ticketActions.getTickets();
     setEmployees([]);
-  }, [ticketData]);
+  }, []);
 
 
   useEffect(() => {
