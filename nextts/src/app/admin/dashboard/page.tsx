@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Layout,
   Card,
@@ -15,11 +15,10 @@ import {
   Badge,
   Avatar,
   Progress,
-  Dropdown,
   Space,
   Tag,
-  Menu
-} from 'antd';
+  Menu,
+} from "antd";
 import {
   DashboardOutlined,
   TeamOutlined,
@@ -27,329 +26,321 @@ import {
   BarChartOutlined,
   SearchOutlined,
   FilterOutlined,
-  MoreOutlined,
   UserOutlined,
   ExclamationCircleOutlined,
   CheckCircleOutlined,
   SyncOutlined,
   ArrowUpOutlined,
-  
-} from '@ant-design/icons';
+  LogoutOutlined,
+} from "@ant-design/icons";
+
+import { useStyles } from "./style";
+import { IConstants } from "./types";
+import { useRouter } from "next/navigation";
+import { useTicketActions, useTicketState } from "@/providers/ticket-provider";
+import AssignEmployeeModal from "../../../components/modals/ticketModals/AssignEmployeeModal";
+import { ITicket } from "@/providers/ticket-provider/context";
+import { IEmployee } from "@/providers/employee-provider/context";
 
 const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-const mockTickets = [
-  {
-    id: 'T-001',
-    title: 'Login Issues with Mobile App',
-    priority: 'high',
-    status: 'open',
-    assignee: 'John Smith',
-    category: 'Technical',
-    created: '2024-08-01',
-    updated: '2024-08-03',
-    department: 'IT Support'
-  },
-  {
-    id: 'T-002',
-    title: 'Password Reset Request',
-    priority: 'medium',
-    status: 'in_progress',
-    assignee: 'Sarah Johnson',
-    category: 'Account',
-    created: '2024-08-02',
-    updated: '2024-08-04',
-    department: 'IT Support'
-  },
-  {
-    id: 'T-003',
-    title: 'Server Performance Issues',
-    priority: 'critical',
-    status: 'escalated',
-    assignee: 'Mike Wilson',
-    category: 'Infrastructure',
-    created: '2024-08-01',
-    updated: '2024-08-04',
-    department: 'IT Support'
-  },
-  {
-    id: 'T-004',
-    title: 'Email Configuration Help',
-    priority: 'low',
-    status: 'resolved',
-    assignee: 'Emily Davis',
-    category: 'Technical',
-    created: '2024-07-30',
-    updated: '2024-08-03',
-    department: 'IT Support'
-  },
-  {
-    id: 'T-005',
-    title: 'Database Backup Failed',
-    priority: 'high',
-    status: 'open',
-    assignee: 'John Smith',
-    category: 'Infrastructure',
-    created: '2024-08-03',
-    updated: '2024-08-04',
-    department: 'IT Support'
-  }
-];
+const SupervisorDashboard: React.FC = () => {
+  const { styles } = useStyles();
+  const [selectedTab, setSelectedTab] = useState<string>("dashboard");
+  const [employees, setEmployees] = useState<IEmployee[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [constants, setConstants] = useState<IConstants | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [priorityFilter, setPriorityFilter] = useState<string>("all");
+  const [assigneeFilter, setAssigneeFilter] = useState<string>("all");
+  const [filteredTickets, setFilteredTickets] = useState<ITicket[]>([]);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [selectedTicket, setSelectedTicket] = useState<ITicket | null>(null);
 
-const mockEmployees = [
-  {
-    id: 1,
-    name: 'John Smith',
-    avatar: '/api/placeholder/32/32',
-    activeTickets: 8,
-    resolvedToday: 3,
-    avgResolutionTime: '2.3h',
-    performance: 92
-  },
-  {
-    id: 2,
-    name: 'Sarah Johnson',
-    avatar: '/api/placeholder/32/32',
-    activeTickets: 5,
-    resolvedToday: 7,
-    avgResolutionTime: '1.8h',
-    performance: 96
-  },
-  {
-    id: 3,
-    name: 'Mike Wilson',
-    avatar: '/api/placeholder/32/32',
-    activeTickets: 12,
-    resolvedToday: 2,
-    avgResolutionTime: '3.1h',
-    performance: 88
-  },
-  {
-    id: 4,
-    name: 'Emily Davis',
-    avatar: '/api/placeholder/32/32',
-    activeTickets: 6,
-    resolvedToday: 4,
-    avgResolutionTime: '2.1h',
-    performance: 94
-  }
-];
+  const router = useRouter();
+  const ticketData = useTicketState();
+  const ticketActions = useTicketActions();
+  const tickets = ticketData.tickets;
 
-const SupervisorDashboard = () => {
-  const [selectedTab, setSelectedTab] = useState('dashboard');
-  const [tickets] = useState(mockTickets);
-  const [filteredTickets, setFilteredTickets] = useState(mockTickets);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [priorityFilter, setPriorityFilter] = useState('all');
-  const [assigneeFilter, setAssigneeFilter] = useState('all');
 
-  // Filter tickets based on search and filters
   useEffect(() => {
+    const defaultConstants: IConstants = {
+      priorityLevels: {
+        "1": { label: "Low", color: "#52c41a" },
+        "2": { label: "Medium", color: "#faad14" },
+        "3": { label: "High", color: "#fa8c16" },
+        "4": { label: "Critical", color: "#f5222d" }
+      },
+      statusTypes: {
+        "0": { label: "Open", color: "blue" },
+        "1": { label: "In Progress", color: "orange" },
+        "2": { label: "Resolved", color: "green" }
+      },
+      categories: ["Technical", "Maintenance", "Request", "Incident"]
+    };
+    
+    setConstants(defaultConstants);
+  }, []);
+
+  useEffect(() => {
+    ticketActions.getTickets();
+    setEmployees([]);
+  }, [ticketData]);
+
+
+  useEffect(() => {
+    if (!tickets) {
+      setFilteredTickets([]);
+      return;
+    }
+
     let filtered = tickets;
 
     if (searchTerm) {
-      filtered = filtered.filter(ticket =>
-        ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ticket.id.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (ticket) =>
+          ticket.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          ticket.referenceNumber.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(ticket => ticket.status === statusFilter);
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(
+        (ticket) => ticket.status.toString() === statusFilter
+      );
     }
 
-    if (priorityFilter !== 'all') {
-      filtered = filtered.filter(ticket => ticket.priority === priorityFilter);
+    if (priorityFilter !== "all") {
+      filtered = filtered.filter(
+        (ticket) => ticket.priorityLevel.toString() === priorityFilter
+      );
     }
 
-    if (assigneeFilter !== 'all') {
-      filtered = filtered.filter(ticket => ticket.assignee === assigneeFilter);
+    if (assigneeFilter !== "all") {
+      filtered = filtered.filter((ticket) =>
+        ticket.assignedEmployees.some((emp) => emp.name === assigneeFilter)
+      );
     }
 
     setFilteredTickets(filtered);
   }, [tickets, searchTerm, statusFilter, priorityFilter, assigneeFilter]);
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'critical': return '#ff4d4f';
-      case 'high': return '#ff7a45';
-      case 'medium': return '#faad14';
-      case 'low': return '#52c41a';
-      default: return '#d9d9d9';
-    }
+  const getPriorityColor = (priorityLevel: number): string => {
+    if (!constants) return "#d9d9d9";
+    return constants.priorityLevels[priorityLevel.toString()]?.color || "#d9d9d9";
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'open': return 'blue';
-      case 'in_progress': return 'orange';
-      case 'escalated': return 'red';
-      case 'resolved': return 'green';
-      default: return 'default';
-    }
+  const getPriorityLabel = (priorityLevel: number): string => {
+    if (!constants) return "Unknown";
+    return constants.priorityLevels[priorityLevel.toString()]?.label || "Unknown";
   };
 
-//   const getStatusIcon = (status: string) => {
-//     switch (status) {
-//       case 'open': return <ExclamationCircleOutlined />;
-//       case 'in_progress': return <SyncOutlined spin />;
-//       case 'escalated': return <ArrowUpOutlined />;
-//       case 'resolved': return <CheckCircleOutlined />;
-//       default: return <ClockCircleOutlined />;
-//     }
-//   };
+  const getStatusColor = (status: number): string => {
+    if (!constants) return "default";
+    return constants.statusTypes[status.toString()]?.color || "default";
+  };
+
+  const getStatusLabel = (status: number): string => {
+    if (!constants) return "Unknown";
+    return constants.statusTypes[status.toString()]?.label || "Unknown";
+  };
+
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
+
+  const handleLogout = () => {
+    sessionStorage.clear();
+    router.push("/");
+  };
+
+  const handleViewTicket = (ticket: ITicket) => {
+    setSelectedTicket(ticket);
+    setShowModal(true);
+  };
 
   const ticketColumns = [
     {
-      title: 'Ticket ID',
-      dataIndex: 'id',
-      key: 'id',
-      render: (id: string) => <Text strong style={{ color: '#667eea' }}>{id}</Text>
+      title: "Reference",
+      dataIndex: "referenceNumber",
+      key: "referenceNumber",
+      render: (ref: string) => (
+        <Text strong className={styles.ticketIdText}>
+          {ref}
+        </Text>
+      ),
     },
     {
-      title: 'Title',
-      dataIndex: 'title',
-      key: 'title',
-      render: (title: string) => <Text style={{ color: '#2c3e50' }}>{title}</Text>
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+      render: (description: string) => (
+        <Text className={styles.ticketTitleText}>{description}</Text>
+      ),
     },
     {
-      title: 'Priority',
-      dataIndex: 'priority',
-      key: 'priority',
-      render: (priority: string) => (
-        <Tag color={getPriorityColor(priority)} style={{ borderRadius: '12px', fontWeight: 600 }}>
-          {priority.toUpperCase()}
+      title: "Priority",
+      dataIndex: "priorityLevel",
+      key: "priorityLevel",
+      render: (priority: number) => (
+        <Tag color={getPriorityColor(priority)} className={styles.priorityTag}>
+          {getPriorityLabel(priority).toUpperCase()}
         </Tag>
-      )
+      ),
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => (
-        <Badge 
-          color={getStatusColor(status)} 
-          text={status.replace('_', ' ').toUpperCase()}
-          style={{ fontWeight: 500 }}
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (status: number) => (
+        <Badge
+          color={getStatusColor(status)}
+          text={getStatusLabel(status).replace("_", " ").toUpperCase()}
+          className={styles.statusBadge}
         />
-      )
+      ),
     },
     {
-      title: 'Assignee',
-      dataIndex: 'assignee',
-      key: 'assignee',
-      render: (assignee: string) => (
-        <Space>
-          <Avatar size="small" icon={<UserOutlined />} />
-          <Text>{assignee}</Text>
-        </Space>
-      )
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
+      render: (category: string) => (
+        <Tag className={styles.categoryTag}>{category}</Tag>
+      ),
     },
     {
-      title: 'Category',
-      dataIndex: 'category',
-      key: 'category',
-      render: (category: string) => <Tag style={{ borderRadius: '8px' }}>{category}</Tag>
+      title: "Location",
+      dataIndex: "location",
+      key: "location",
+      render: (location: string) => <Text type="secondary">{location}</Text>,
     },
     {
-      title: 'Updated',
-      dataIndex: 'updated',
-      key: 'updated',
-      render: (date: string) => <Text type="secondary">{date}</Text>
+      title: "Date Created",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date: string) => (
+        <Text type="secondary">{formatDate(date)}</Text>
+      ),
     },
     {
-      title: 'Actions',
-      key: 'actions',
-      render: () => (
-        <Dropdown
-          overlay={
-            <Menu>
-              <Menu.Item key="1">View Details</Menu.Item>
-              <Menu.Item key="2">Reassign</Menu.Item>
-              <Menu.Item key="3">Update Status</Menu.Item>
-              <Menu.Item key="4">Add Comment</Menu.Item>
-            </Menu>
-          }
-        >
-          <Button icon={<MoreOutlined />} type="text" />
-        </Dropdown>
-      )
-    }
+      title: "Last Updated",
+      dataIndex: "lastUpdated",
+      key: "lastUpdated",
+      render: (date: string) => (
+        <Text type="secondary">{formatDate(date)}</Text>
+      ),
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (record: ITicket) => (
+        <Button onClick={() => handleViewTicket(record)}>
+          View
+        </Button>
+      ),
+    },
   ];
+
+  const getStatusCounts = () => {
+    if (!tickets) {
+      return { open: 0, inProgress: 0, resolved: 0 };
+    }
+
+    return {
+      open: tickets.filter((t) => t.status === 0).length,
+      inProgress: tickets.filter((t) => t.status === 1).length,
+      resolved: tickets.filter((t) => t.status === 2).length,
+    };
+  };
 
   const menuItems = [
     {
-      key: 'dashboard',
+      key: "dashboard",
       icon: <DashboardOutlined />,
-      label: 'Dashboard'
+      label: "Dashboard",
     },
     {
-      key: 'tickets',
+      key: "tickets",
       icon: <HeartOutlined />,
-      label: 'Tickets'
+      label: "Tickets",
     },
     {
-      key: 'team',
+      key: "team",
       icon: <TeamOutlined />,
-      label: 'Team'
+      label: "Team",
     },
     {
-      key: 'analytics',
+      key: "analytics",
       icon: <BarChartOutlined />,
-      label: 'Analytics'
-    }
+      label: "Analytics",
+    },
   ];
 
+  const statusCounts = getStatusCounts();
+
   const renderDashboard = () => (
-    <div style={{ padding: '24px' }}>
+    <div className={styles.pageContainer}>
       {/* Stats Cards */}
-      <Row gutter={[24, 24]} style={{ marginBottom: '32px' }}>
+      <Row gutter={[24, 24]} className={styles.cardMargin}>
         <Col xs={24} sm={12} lg={6}>
-          <Card style={{ 
-            borderRadius: '16px', 
-            background: 'linear-gradient(135deg, #667eea, #764ba2)',
-            border: 'none',
-            color: 'white'
-          }}>
+          <Card className={styles.gradientCard}>
             <Statistic
-              title={<span style={{ color: 'rgba(255,255,255,0.9)' }}>Total Tickets</span>}
-              value={tickets.length}
-              prefix={<HeartOutlined style={{ color: 'white' }} />}
-              valueStyle={{ color: 'white', fontSize: '2rem', fontWeight: 'bold' }}
+              title={
+                <span className={styles.statisticTitle}>Total Tickets</span>
+              }
+              value={tickets?.length || 0}
+              prefix={<HeartOutlined className={styles.whiteIcon} />}
+              valueStyle={{
+                color: "white",
+                fontSize: "2rem",
+                fontWeight: "bold",
+              }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card style={{ borderRadius: '16px', border: '1px solid #f0f0f0' }}>
+          <Card className={styles.regularCard}>
             <Statistic
               title="Open Tickets"
-              value={tickets.filter(t => t.status === 'open').length}
-              prefix={<ExclamationCircleOutlined style={{ color: '#1890ff' }} />}
-              valueStyle={{ color: '#1890ff', fontSize: '2rem', fontWeight: 'bold' }}
+              value={statusCounts.open}
+              prefix={<ExclamationCircleOutlined className={styles.blueIcon} />}
+              valueStyle={{
+                color: "#1890ff",
+                fontSize: "2rem",
+                fontWeight: "bold",
+              }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card style={{ borderRadius: '16px', border: '1px solid #f0f0f0' }}>
+          <Card className={styles.regularCard}>
             <Statistic
               title="In Progress"
-              value={tickets.filter(t => t.status === 'in_progress').length}
-              prefix={<SyncOutlined style={{ color: '#faad14' }} />}
-              valueStyle={{ color: '#faad14', fontSize: '2rem', fontWeight: 'bold' }}
+              value={statusCounts.inProgress}
+              prefix={<SyncOutlined className={styles.yellowIcon} />}
+              valueStyle={{
+                color: "#faad14",
+                fontSize: "2rem",
+                fontWeight: "bold",
+              }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card style={{ borderRadius: '16px', border: '1px solid #f0f0f0' }}>
+          <Card className={styles.regularCard}>
             <Statistic
               title="Resolved Today"
-              value={12}
-              prefix={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
-              valueStyle={{ color: '#52c41a', fontSize: '2rem', fontWeight: 'bold' }}
-              suffix={<ArrowUpOutlined style={{ color: '#52c41a', fontSize: '14px' }} />}
+              value={statusCounts.resolved}
+              prefix={<CheckCircleOutlined className={styles.greenIcon} />}
+              valueStyle={{
+                color: "#52c41a",
+                fontSize: "2rem",
+                fontWeight: "bold",
+              }}
+              suffix={<ArrowUpOutlined className={styles.greenSmallIcon} />}
             />
           </Card>
         </Col>
@@ -358,14 +349,22 @@ const SupervisorDashboard = () => {
       {/* Quick Actions & Team Performance */}
       <Row gutter={[24, 24]}>
         <Col xs={24} lg={16}>
-          <Card 
-            title="Recent Tickets" 
-            style={{ borderRadius: '16px' }}
-            extra={<Button type="primary" style={{ borderRadius: '8px' }}>View All</Button>}
+          <Card
+            title="Recent Tickets"
+            className={styles.roundedCard}
+            extra={
+              <Button
+                type="primary"
+                className={styles.filterInput}
+                onClick={() => setSelectedTab("tickets")}
+              >
+                View All
+              </Button>
+            }
           >
             <Table
-              dataSource={filteredTickets.slice(0, 5)}
-              columns={ticketColumns.slice(0, 5)}
+              dataSource={tickets ? tickets.slice(0, 5) : []}
+              columns={ticketColumns.slice(0, 6)}
               pagination={false}
               size="small"
               rowKey="id"
@@ -373,32 +372,27 @@ const SupervisorDashboard = () => {
           </Card>
         </Col>
         <Col xs={24} lg={8}>
-          <Card title="Team Performance" style={{ borderRadius: '16px', marginBottom: '24px' }}>
-            {mockEmployees.slice(0, 3).map(employee => (
-              <div key={employee.id} style={{ marginBottom: '16px', padding: '12px', background: '#f8f9fa', borderRadius: '8px' }}>
-                <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <Space>
-                    <Avatar icon={<UserOutlined />} />
-                    <div>
-                      <Text strong>{employee.name}</Text>
-                      <br />
-                      <Text type="secondary" style={{ fontSize: '12px' }}>
-                        {employee.activeTickets} active tickets
-                      </Text>
-                    </div>
+          <Card title="Team Performance" className={styles.roundedCard}>
+            {employees.length === 0 ? (
+              <Text type="secondary">No Employees Found</Text>
+            ) : (
+              employees.slice(0, 3).map((employee) => (
+                <div key={employee.id} className={styles.teamMemberContainer}>
+                  <Space className={styles.teamMemberSpace}>
+                    <Space>
+                      <Avatar icon={<UserOutlined />} />
+                      <div>
+                        <Text strong>{employee.name}</Text>
+                        <br />
+                        <Text type="secondary" className={styles.teamMemberInfo}>
+                          {employee.ticketsAssigned.length || 0} active tickets
+                        </Text>
+                      </div>
+                    </Space>
                   </Space>
-                  <div style={{ textAlign: 'right' }}>
-                    <Progress 
-                      type="circle" 
-                      size={40} 
-                      percent={employee.performance}
-                      format={percent => `${percent}%`}
-                      strokeColor="#667eea"
-                    />
-                  </div>
-                </Space>
-              </div>
-            ))}
+                </div>
+              ))
+            )}
           </Card>
         </Col>
       </Row>
@@ -406,8 +400,8 @@ const SupervisorDashboard = () => {
   );
 
   const renderTickets = () => (
-    <div style={{ padding: '24px' }}>
-      <Card style={{ borderRadius: '16px', marginBottom: '24px' }}>
+    <div className={styles.pageContainer}>
+      <Card className={`${styles.roundedCard} ${styles.sectionMargin}`}>
         <Row gutter={[16, 16]} align="middle">
           <Col xs={24} sm={8}>
             <Input
@@ -415,62 +409,70 @@ const SupervisorDashboard = () => {
               prefix={<SearchOutlined />}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ borderRadius: '8px' }}
+              className={styles.filterInput}
             />
           </Col>
           <Col xs={12} sm={4}>
             <Select
               value={statusFilter}
               onChange={setStatusFilter}
-              style={{ width: '100%', borderRadius: '8px' }}
+              className={styles.filterSelect}
               placeholder="Status"
             >
               <Option value="all">All Status</Option>
-              <Option value="open">Open</Option>
-              <Option value="in_progress">In Progress</Option>
-              <Option value="escalated">Escalated</Option>
-              <Option value="resolved">Resolved</Option>
+              <Option value="0">Open</Option>
+              <Option value="1">In Progress</Option>
+              <Option value="2">Resolved</Option>
             </Select>
           </Col>
           <Col xs={12} sm={4}>
             <Select
               value={priorityFilter}
               onChange={setPriorityFilter}
-              style={{ width: '100%' }}
+              className={styles.filterSelect}
               placeholder="Priority"
             >
               <Option value="all">All Priority</Option>
-              <Option value="critical">Critical</Option>
-              <Option value="high">High</Option>
-              <Option value="medium">Medium</Option>
-              <Option value="low">Low</Option>
+              <Option value="4">Critical</Option>
+              <Option value="3">High</Option>
+              <Option value="2">Medium</Option>
+              <Option value="1">Low</Option>
             </Select>
           </Col>
           <Col xs={24} sm={6}>
             <Select
               value={assigneeFilter}
               onChange={setAssigneeFilter}
-              style={{ width: '100%' }}
+              className={styles.filterSelect}
               placeholder="Assignee"
+              disabled={employees.length === 0}
             >
               <Option value="all">All Assignees</Option>
-              {mockEmployees.map(emp => (
-                <Option key={emp.id} value={emp.name}>{emp.name}</Option>
+              {employees.map((emp) => (
+                <Option key={emp.id} value={emp.name}>
+                  {emp.name}
+                </Option>
               ))}
             </Select>
           </Col>
           <Col xs={24} sm={2}>
             <Button 
               icon={<FilterOutlined />} 
-              style={{ width: '100%', borderRadius: '8px' }}
+              className={styles.filterButton}
+              onClick={() => {
+                setSearchTerm("");
+                setStatusFilter("all");
+                setPriorityFilter("all");
+                setAssigneeFilter("all");
+              }}
             >
-              Filter
+              Reset
             </Button>
           </Col>
         </Row>
       </Card>
 
-      <Card style={{ borderRadius: '16px' }}>
+      <Card className={styles.roundedCard}>
         <Table
           dataSource={filteredTickets}
           columns={ticketColumns}
@@ -479,7 +481,7 @@ const SupervisorDashboard = () => {
             pageSize: 10,
             showSizeChanger: true,
             showQuickJumper: true,
-            style: { marginTop: '24px' }
+            style: { marginTop: "24px" },
           }}
           rowKey="id"
           scroll={{ x: true }}
@@ -489,81 +491,105 @@ const SupervisorDashboard = () => {
   );
 
   const renderTeam = () => (
-    <div style={{ padding: '24px' }}>
+    <div className={styles.pageContainer}>
       <Row gutter={[24, 24]}>
-        {mockEmployees.map(employee => (
-          <Col xs={24} sm={12} lg={6} key={employee.id}>
-            <Card style={{ borderRadius: '16px', textAlign: 'center' }}>
-              <Avatar size={64} icon={<UserOutlined />} style={{ marginBottom: '16px' }} />
-              <Title level={4} style={{ margin: '8px 0', color: '#2c3e50' }}>{employee.name}</Title>
-              
-              <Row gutter={[8, 8]} style={{ marginTop: '16px' }}>
-                <Col span={12}>
-                  <Statistic
-                    title="Active"
-                    value={employee.activeTickets}
-                    valueStyle={{ fontSize: '18px', color: '#1890ff' }}
-                  />
-                </Col>
-                <Col span={12}>
-                  <Statistic
-                    title="Resolved"
-                    value={employee.resolvedToday}
-                    valueStyle={{ fontSize: '18px', color: '#52c41a' }}
-                  />
-                </Col>
-              </Row>
-              
-              <div style={{ marginTop: '16px' }}>
-                <Text type="secondary" style={{ fontSize: '12px' }}>Performance Score</Text>
-                <Progress 
-                  percent={employee.performance} 
-                  strokeColor="#667eea"
-                  style={{ margin: '8px 0' }}
-                />
-              </div>
-              
-              <div style={{ marginTop: '12px' }}>
-                <Text type="secondary" style={{ fontSize: '12px' }}>
-                  Avg Resolution: {employee.avgResolutionTime}
-                </Text>
-              </div>
+        {employees.length === 0 ? (
+          <Col xs={24}>
+            <Card className={styles.roundedCard}>
+              <Text type="secondary">
+                Team data will be available when employee provider is implemented
+              </Text>
             </Card>
           </Col>
-        ))}
+        ) : (
+          employees.map((employee) => (
+            <Col xs={24} sm={12} lg={6} key={employee.id}>
+              <Card className={styles.teamCard}>
+                <Avatar
+                  size={64}
+                  icon={<UserOutlined />}
+                  className={styles.teamCardAvatar}
+                />
+                <Title level={4} className={styles.teamCardTitle}>
+                  {employee.name}
+                </Title>
+
+                <Row gutter={[8, 8]} className={styles.teamCardStats}>
+                  <Col span={12}>
+                    <Statistic
+                      title="Open"
+                      value={employee.ticketsAssigned.filter(t => t.status !== 2).length || 0}
+                      valueStyle={{ fontSize: "18px", color: "#1890ff" }}
+                    />
+                  </Col>
+                  <Col span={12}>
+                    <Statistic
+                      title="Resolved"
+                      value={employee.ticketsAssigned.filter(t => t.status == 2).length || 0}
+                      valueStyle={{ fontSize: "18px", color: "#52c41a" }}
+                    />
+                  </Col>
+                </Row>
+
+                <div className={styles.teamCardPerformance}>
+                  <Text
+                    type="secondary"
+                    className={styles.teamCardPerformanceText}
+                  >
+                    Performance Score
+                  </Text>
+                  <Progress
+                    percent={100}
+                    strokeColor="#667eea"
+                    className={styles.teamCardProgress}
+                  />
+                </div>
+
+                <div className={styles.teamCardResolution}>
+                  <Text
+                    type="secondary"
+                    className={styles.teamCardResolutionText}
+                  >
+                    Avg Resolution: {"N/A"}
+                  </Text>
+                </div>
+              </Card>
+            </Col>
+          ))
+        )}
       </Row>
     </div>
   );
 
   const renderAnalytics = () => (
-    <div style={{ padding: '24px' }}>
+    <div className={styles.pageContainer}>
       <Row gutter={[24, 24]}>
         <Col xs={24} lg={12}>
-          <Card title="Ticket Trends" style={{ borderRadius: '16px' }}>
-            <div style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', borderRadius: '8px' }}>
+          <Card title="Ticket Trends" className={styles.roundedCard}>
+            <div className={styles.analyticsChart}>
               <Text type="secondary">Chart visualization would go here</Text>
             </div>
           </Card>
         </Col>
         <Col xs={24} lg={12}>
-          <Card title="Resolution Time" style={{ borderRadius: '16px' }}>
-            <div style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', borderRadius: '8px' }}>
+          <Card title="Resolution Time" className={styles.roundedCard}>
+            <div className={styles.analyticsChart}>
               <Text type="secondary">Time analysis chart would go here</Text>
             </div>
           </Card>
         </Col>
       </Row>
-      
-      <Row gutter={[24, 24]} style={{ marginTop: '24px' }}>
+
+      <Row gutter={[24, 24]} className={styles.rowMargin}>
         <Col xs={24}>
-          <Card title="Department Analytics" style={{ borderRadius: '16px' }}>
+          <Card title="Department Analytics" className={styles.roundedCard}>
             <Row gutter={[24, 24]}>
               <Col xs={12} sm={6}>
                 <Statistic
                   title="Avg Resolution Time"
                   value={2.4}
                   suffix="hours"
-                  valueStyle={{ color: '#667eea' }}
+                  valueStyle={{ color: "#667eea" }}
                 />
               </Col>
               <Col xs={12} sm={6}>
@@ -571,7 +597,7 @@ const SupervisorDashboard = () => {
                   title="First Response Time"
                   value={15}
                   suffix="min"
-                  valueStyle={{ color: '#52c41a' }}
+                  valueStyle={{ color: "#52c41a" }}
                 />
               </Col>
               <Col xs={12} sm={6}>
@@ -579,7 +605,7 @@ const SupervisorDashboard = () => {
                   title="Customer Satisfaction"
                   value={94}
                   suffix="%"
-                  valueStyle={{ color: '#faad14' }}
+                  valueStyle={{ color: "#faad14" }}
                 />
               </Col>
               <Col xs={12} sm={6}>
@@ -587,7 +613,7 @@ const SupervisorDashboard = () => {
                   title="SLA Compliance"
                   value={98}
                   suffix="%"
-                  valueStyle={{ color: '#52c41a' }}
+                  valueStyle={{ color: "#52c41a" }}
                 />
               </Col>
             </Row>
@@ -599,63 +625,66 @@ const SupervisorDashboard = () => {
 
   const renderContent = () => {
     switch (selectedTab) {
-      case 'dashboard': return renderDashboard();
-      case 'tickets': return renderTickets();
-      case 'team': return renderTeam();
-      case 'analytics': return renderAnalytics();
-      default: return renderDashboard();
+      case "dashboard":
+        return renderDashboard();
+      case "tickets":
+        return renderTickets();
+      case "team":
+        return renderTeam();
+      case "analytics":
+        return renderAnalytics();
+      default:
+        return renderDashboard();
     }
   };
 
   return (
-    <Layout style={{ minHeight: '100vh', background: '#f5f7fa' }}>
-      <Header style={{ 
-        background: 'linear-gradient(135deg, #667eea, #764ba2)',
-        padding: '0 24px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span style={{ fontSize: '24px', marginRight: '12px' }}>🤖</span>
-          <Title level={3} style={{ color: 'white', margin: 0 }}>Glass - Supervisor Dashboard</Title>
+    <Layout className={styles.layout}>
+      <Header className={styles.header}>
+        <div className={styles.headerTitle}>
+          <span style={{ fontSize: "24px", marginRight: "12px" }}>🤖</span>
+          <Title level={3} className={styles.headerTitleText}>
+            Glass - Supervisor Dashboard
+          </Title>
         </div>
-        <Space>
-          <Avatar icon={<UserOutlined />} />
-          <Text style={{ color: 'white' }}>Sarah Wilson</Text>
-        </Space>
+        <div onClick={handleLogout} style={{ cursor: "pointer" }}>
+          <Space>
+            <Avatar icon={<LogoutOutlined />} />
+            <Text className={styles.headerUserText}>Logout</Text>
+          </Space>
+        </div>
       </Header>
-      
+
       <Layout>
-        <Sider 
-          width={250} 
-          style={{ 
-            background: 'white',
-            boxShadow: '2px 0 8px rgba(0,0,0,0.05)'
-          }}
-        >
+        <Sider width={250} className={styles.sider}>
           <Menu
             mode="inline"
             selectedKeys={[selectedTab]}
             onClick={({ key }) => setSelectedTab(key)}
-            style={{ border: 'none', padding: '16px 8px' }}
-            items={menuItems.map(item => ({
+            className={styles.menu}
+            items={menuItems.map((item) => ({
               ...item,
-              style: { 
-                borderRadius: '8px', 
-                margin: '4px 0',
-                height: '48px',
-                display: 'flex',
-                alignItems: 'center'
-              }
+              className: styles.menuItem,
             }))}
           />
         </Sider>
-        
-        <Content style={{ background: '#f5f7fa' }}>
+
+        <Content className={styles.content}>
           {renderContent()}
         </Content>
       </Layout>
+
+      {/* Modal */}
+      {showModal && selectedTicket && constants && (
+        <AssignEmployeeModal
+          visible={showModal}
+          ticket={selectedTicket}
+          employees={employees}
+          constants={constants}
+          onSave={ticketActions.assignEmployee}
+          onCancel={() => setShowModal(false)}
+        />
+      )}
     </Layout>
   );
 };
