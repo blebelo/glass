@@ -14,7 +14,7 @@ namespace GlassTickets.Services.Tickets
         Task DeleteAsync(Guid input);
         Task<TicketDto> GetAsync(Guid input);
         Task<PagedResultDto<TicketDto>> GetAllAsync(PagedAndSortedResultRequestDto input);
-        Task<TicketDto> AssignEmployeeAsync(Guid input, List<Guid> employeeIds);
+        Task<TicketDto> AssignEmployeesAsync(Guid input, List<Guid> employeeIds);
         Task<TicketDto> CloseTicketAsync(Guid input, Guid employeeId);
     }
 }

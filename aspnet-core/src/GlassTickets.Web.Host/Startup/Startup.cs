@@ -58,19 +58,17 @@ namespace GlassTickets.Web.Host.Startup
             });
 
             //CORS Service
-            services.AddCors(
-                options => options.AddPolicy(
-                    _defaultCorsPolicyName,
-                    builder => builder
-                        .WithOrigins(_appConfiguration["App:CorsOrigins"]
-                            .Split(",", StringSplitOptions.RemoveEmptyEntries)
-                            .Select(o => o.RemovePostFix("/"))
-                            .ToArray())
-                        .AllowAnyHeader()
+            services.AddCors(options =>
+            {
+                options.AddPolicy(_defaultCorsPolicyName, builder =>
+                {
+                    builder
+                        .AllowAnyOrigin()
                         .AllowAnyMethod()
-                        .AllowCredentials()
-                )
-            );
+                        .AllowAnyHeader();
+                });
+            });
+
 
             // Swagger - Enable this line and the related lines in Configure method to enable swagger UI
             ConfigureSwagger(services);
