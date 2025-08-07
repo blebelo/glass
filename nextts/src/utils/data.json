@@ -1,0 +1,191 @@
+{
+  "tickets": {
+    "result": {
+      "totalCount": 5,
+      "items": [
+        {
+          "referenceNumber": "TK001",
+          "priorityLevel": 3,
+          "location": "Tembisa, Kopanong",
+          "status": 0,
+          "category": "Technical",
+          "description": "Login Issues with Mobile App",
+          "dateCreated": "2024-08-01T09:00:00Z",
+          "lastUpdated": "2024-08-03T14:30:00Z",
+          "dateClosed": null,
+          "reasonClosed": null,
+          "sendUpdates": true,
+          "customerNumber": "0670376872",
+          "assignedEmployees": [
+            {
+              "id": 1,
+              "name": "John Smith",
+              "email": "john.smith@company.com"
+            }
+          ],
+          "id": "01988297-72df-7ba0-8af9-f9c5c6618396"
+        },
+        {
+          "referenceNumber": "TK002",
+          "priorityLevel": 2,
+          "location": "Johannesburg, Gauteng",
+          "status": 1,
+          "category": "Account",
+          "description": "Password Reset Request",
+          "dateCreated": "2024-08-02T11:15:00Z",
+          "lastUpdated": "2024-08-04T16:45:00Z",
+          "dateClosed": null,
+          "reasonClosed": null,
+          "sendUpdates": true,
+          "customerNumber": "0823456789",
+          "assignedEmployees": [
+            {
+              "id": 2,
+              "name": "Sarah Johnson",
+              "email": "sarah.johnson@company.com"
+            }
+          ],
+          "id": "01988297-72df-7ba0-8af9-f9c5c6618397"
+        },
+        {
+          "referenceNumber": "TK003",
+          "priorityLevel": 4,
+          "location": "Cape Town, Western Cape",
+          "status": 2,
+          "category": "Infrastructure",
+          "description": "Server Performance Issues",
+          "dateCreated": "2024-08-01T08:00:00Z",
+          "lastUpdated": "2024-08-04T12:20:00Z",
+          "dateClosed": null,
+          "reasonClosed": null,
+          "sendUpdates": true,
+          "customerNumber": "0712345678",
+          "assignedEmployees": [
+            {
+              "id": 3,
+              "name": "Mike Wilson",
+              "email": "mike.wilson@company.com"
+            }
+          ],
+          "id": "01988297-72df-7ba0-8af9-f9c5c6618398"
+        },
+        {
+          "referenceNumber": "TK004",
+          "priorityLevel": 1,
+          "location": "Durban, KwaZulu-Natal",
+          "status": 3,
+          "category": "Technical",
+          "description": "Email Configuration Help",
+          "dateCreated": "2024-07-30T15:30:00Z",
+          "lastUpdated": "2024-08-03T10:15:00Z",
+          "dateClosed": "2024-08-03T10:15:00Z",
+          "reasonClosed": "Issue resolved successfully",
+          "sendUpdates": false,
+          "customerNumber": "0834567890",
+          "assignedEmployees": [
+            {
+              "id": 4,
+              "name": "Emily Davis",
+              "email": "emily.davis@company.com"
+            }
+          ],
+          "id": "01988297-72df-7ba0-8af9-f9c5c6618399"
+        },
+        {
+          "referenceNumber": "TK005",
+          "priorityLevel": 3,
+          "location": "Pretoria, Gauteng",
+          "status": 0,
+          "category": "Infrastructure",
+          "description": "Database Backup Failed",
+          "dateCreated": "2024-08-03T07:45:00Z",
+          "lastUpdated": "2024-08-04T09:30:00Z",
+          "dateClosed": null,
+          "reasonClosed": null,
+          "sendUpdates": true,
+          "customerNumber": "0845678901",
+          "assignedEmployees": [
+            {
+              "id": 1,
+              "name": "John Smith",
+              "email": "john.smith@company.com"
+            }
+          ],
+          "id": "01988297-72df-7ba0-8af9-f9c5c6618400"
+        }
+      ]
+    },
+    "targetUrl": null,
+    "success": true,
+    "error": null,
+    "unAuthorizedRequest": false,
+    "__abp": true
+  },
+  "employees": [
+    {
+      "id": 1,
+      "name": "John Smith",
+      "email": "john.smith@company.com",
+      "avatar": "/api/placeholder/32/32",
+      "activeTickets": 8,
+      "resolvedToday": 3,
+      "avgResolutionTime": "2.3h",
+      "performance": 92,
+      "department": "IT Support"
+    },
+    {
+      "id": 2,
+      "name": "Sarah Johnson",
+      "email": "sarah.johnson@company.com",
+      "avatar": "/api/placeholder/32/32",
+      "activeTickets": 5,
+      "resolvedToday": 7,
+      "avgResolutionTime": "1.8h",
+      "performance": 96,
+      "department": "IT Support"
+    },
+    {
+      "id": 3,
+      "name": "Mike Wilson",
+      "email": "mike.wilson@company.com",
+      "avatar": "/api/placeholder/32/32",
+      "activeTickets": 12,
+      "resolvedToday": 2,
+      "avgResolutionTime": "3.1h",
+      "performance": 88,
+      "department": "IT Support"
+    },
+    {
+      "id": 4,
+      "name": "Emily Davis",
+      "email": "emily.davis@company.com",
+      "avatar": "/api/placeholder/32/32",
+      "activeTickets": 6,
+      "resolvedToday": 4,
+      "avgResolutionTime": "2.1h",
+      "performance": 94,
+      "department": "IT Support"
+    }
+  ],
+  "constants": {
+    "priorityLevels": {
+      "1": { "label": "low", "color": "#52c41a" },
+      "2": { "label": "medium", "color": "#faad14" },
+      "3": { "label": "high", "color": "#ff7a45" },
+      "4": { "label": "critical", "color": "#ff4d4f" }
+    },
+    "statusTypes": {
+      "0": { "label": "open", "color": "blue" },
+      "1": { "label": "in_progress", "color": "orange" },
+      "3": { "label": "resolved", "color": "green" }
+    },
+    "categories": [
+      "Technical",
+      "Account", 
+      "Infrastructure",
+      "Electricity",
+      "Water",
+      "General"
+    ]
+  }
+}

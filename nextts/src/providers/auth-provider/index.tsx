@@ -17,7 +17,6 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
         dispatch(loginUserPending());
         const endpoint = 'TokenAuth/Authenticate';
         
-        console.log(user)
         await instance.post(endpoint, user)
         .then(
             (response) => {
@@ -34,7 +33,6 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
                 sessionStorage.setItem("token", token);
                 sessionStorage.setItem("role", userRole);
                 sessionStorage.setItem("Id", userId );
-                console.log(token);
                 dispatch(loginUserSuccess(token));
                 router.push(`${userRole.toLowerCase()}/dashboard`);
             }

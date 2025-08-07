@@ -77,12 +77,8 @@ const AuthPage: React.FC = () => {
 
 
   const handleSubmit = async (values: ILogin) => {
-    try {
-      authActions.loginUser(values);
-    } 
-    catch (error) {
-      console.log(error);
-    } 
+    values?.userNameOrEmailAddress?.trim();
+    authActions.loginUser(values);
   };
 
   const goBack = () => {
@@ -172,8 +168,7 @@ const AuthPage: React.FC = () => {
               <Form.Item
                 name="password"
                 rules={[
-                  { required: true, message: 'Please enter your password' },
-                  { min: 6, message: 'Password must be at least 6 characters' }
+                  { required: true, message: 'Please enter your password' }
                 ]}
               >
                 <Input.Password
