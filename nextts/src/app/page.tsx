@@ -191,7 +191,7 @@ const LandingPage: React.FC = () => {
                 <Button 
                   size="large"
                   icon={<SearchOutlined />}
-                  onClick={() => scrollToSection('features')}
+                  onClick={() => router.push('/dashboard')}
                   className={styles.btnSecondary}
                 >
                   View Tickets
