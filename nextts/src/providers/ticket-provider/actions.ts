@@ -44,9 +44,9 @@ export const assignEmployeePending = createAction<ITicketStateContext>(
 
 export const assignEmployeeSuccess = createAction<ITicketStateContext, ITicket>(
     TicketActionEnums.assignEmployeeSuccess,
-    (updatedTicket: ITicket) => ({
+    (ticket: ITicket) => ({
         ...RequestState.Success,
-        updatedTicket
+        ticket
     })
 );
 

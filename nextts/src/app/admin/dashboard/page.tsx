@@ -162,11 +162,6 @@ const SupervisorDashboard: React.FC = () => {
     setShowModal(true);
   };
 
-  const handleModalClose = () => {
-    setShowModal(false);
-    setSelectedTicket(null);
-  };
-
   const ticketColumns = [
     {
       title: "Reference",
@@ -257,7 +252,7 @@ const SupervisorDashboard: React.FC = () => {
     return {
       open: tickets.filter((t) => t.status === 0).length,
       inProgress: tickets.filter((t) => t.status === 1).length,
-      resolved: tickets.filter((t) => t.status === 3).length,
+      resolved: tickets.filter((t) => t.status === 2).length,
     };
   };
 
@@ -427,8 +422,7 @@ const SupervisorDashboard: React.FC = () => {
               <Option value="all">All Status</Option>
               <Option value="0">Open</Option>
               <Option value="1">In Progress</Option>
-              <Option value="2">Escalated</Option>
-              <Option value="3">Resolved</Option>
+              <Option value="2">Resolved</Option>
             </Select>
           </Col>
           <Col xs={12} sm={4}>
@@ -466,7 +460,6 @@ const SupervisorDashboard: React.FC = () => {
               icon={<FilterOutlined />} 
               className={styles.filterButton}
               onClick={() => {
-                // Reset filters
                 setSearchTerm("");
                 setStatusFilter("all");
                 setPriorityFilter("all");
@@ -524,15 +517,15 @@ const SupervisorDashboard: React.FC = () => {
                 <Row gutter={[8, 8]} className={styles.teamCardStats}>
                   <Col span={12}>
                     <Statistic
-                      title="Active"
-                      value={employee.ticketsAssigned.length || 0}
+                      title="Open"
+                      value={employee.ticketsAssigned.filter(t => t.status !== 2).length || 0}
                       valueStyle={{ fontSize: "18px", color: "#1890ff" }}
                     />
                   </Col>
                   <Col span={12}>
                     <Statistic
                       title="Resolved"
-                      value={employee.ticketsAssigned.length || 0}
+                      value={employee.ticketsAssigned.filter(t => t.status == 2).length || 0}
                       valueStyle={{ fontSize: "18px", color: "#52c41a" }}
                     />
                   </Col>
