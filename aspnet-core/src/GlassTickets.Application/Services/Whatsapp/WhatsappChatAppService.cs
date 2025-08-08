@@ -44,7 +44,6 @@ namespace GlassTickets.Services.Whatsapp
 
                 _logger.LogInformation("Processing message from {From}: {Message}", from, message);
 
-                // Check if this is a ticket tracking request
                 if (_trackingService.IsTrackingRequest(message))
                 {
                     var referenceNumber = _trackingService.ExtractReferenceNumber(message);
@@ -60,7 +59,6 @@ namespace GlassTickets.Services.Whatsapp
                     return await _trackingService.GetTicketStatusAsync(referenceNumber);
                 }
 
-                // Handle new ticket creation/conversation
                 var draft = _memoryStore.GetDraft(from) ?? new TicketDraftDto { SessionId = from };
 
                 var (responseText, updatedDraft) = await _chatAppService.ProcessMessageAsync(message, draft);
@@ -98,7 +96,6 @@ namespace GlassTickets.Services.Whatsapp
 
                 _memoryStore.SaveDraft(from, updatedDraft);
 
-                // Add helpful tip about tracking
                 if (string.IsNullOrWhiteSpace(responseText))
                 {
                     responseText = "👋 Hi there! I'm here to help you create support tickets or track existing ones.\n\n" +

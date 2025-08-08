@@ -12,9 +12,9 @@ namespace GlassTickets.EntityFrameworkCore
     public class GlassTicketsDbContext : AbpZeroDbContext<Tenant, Role, User, GlassTicketsDbContext>
     {
         /* Define a DbSet for each entity of the application */
-        public DbSet<Domain.Supervisors.Supervisor> Supervisors { get; set; }
+        public DbSet<Supervisor> Supervisors { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
-        public DbSet<Domain.Employees.Employee> Employees { get; set; }
+        public DbSet<Employee> Employees { get; set; }
 
         public GlassTicketsDbContext(DbContextOptions<GlassTicketsDbContext> options)
             : base(options)

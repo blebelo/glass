@@ -20,7 +20,7 @@ namespace GlassTickets.EntityFrameworkCore
              https://docs.microsoft.com/en-us/ef/core/cli/dbcontext-creation?tabs=dotnet-core-cli#args
              */
             var configuration = AppConfigurations.Get(WebContentDirectoryFinder.CalculateContentRootFolder());
-
+            //var connectionString = "Host=turntable.proxy.rlwy.net;Port=53335;Database=railway;Username=postgres;Password=oPvVfUbTBSGVHLAQeWHSOkVeuApVQWAa";
             GlassTicketsDbContextConfigurer.Configure(builder, configuration.GetConnectionString(GlassTicketsConsts.ConnectionStringName));
 
             return new GlassTicketsDbContext(builder.Options);

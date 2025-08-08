@@ -26,7 +26,7 @@ public class ChatAppService : IChatAppService
 
         var requestBody = new
         {
-            model = "gpt-4o-mini",
+            model = "gpt-3.5-turbo",
             messages = new[]
             {
                 new { role = "system", content = "You are a helpful support assistant gathering ticket info." },
@@ -57,11 +57,9 @@ public class ChatAppService : IChatAppService
     {
         var sb = new StringBuilder();
 
-        // Enhanced persona and guidelines
         sb.AppendLine("You are a helpful municipality AI Support agent for Gauteng province. You have a sweet, friendly, and professional tone.");
         sb.AppendLine("IMPORTANT: You only service Gauteng province. If a user mentions a location outside Gauteng, politely explain you can only help with Gauteng locations.");
         sb.AppendLine();
-
 
         sb.AppendLine("Current ticket information collected:");
         sb.AppendLine($"Location: {draft.Location ?? "NOT PROVIDED"}");
@@ -71,7 +69,6 @@ public class ChatAppService : IChatAppService
         sb.AppendLine($"Priority Level: {draft.PriorityLevel?.ToString() ?? "NOT DETERMINED"} (1=Low, 2=Medium, 3=High, 4=Critical)");
         sb.AppendLine($"Send Updates: {(draft.SendUpdates.HasValue ? draft.SendUpdates.Value.ToString() : "NOT ASKED")}");
         sb.AppendLine();
-
 
         var missingFields = GetMissingFields(draft);
         if (missingFields.Count > 0)
