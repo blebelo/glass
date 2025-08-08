@@ -48,7 +48,7 @@ namespace GlassTickets.Web.Controllers
         {
             var form = await Request.ReadFormAsync();
             var messageId = form["MessageSid"].ToString();
-            var status = form["MessageStatus"].ToString(); // sent, delivered, read, failed
+            var status = form["MessageStatus"].ToString(); 
 
             return Ok();
         }

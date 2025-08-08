@@ -1,11 +1,12 @@
-﻿using System;
+﻿using GlassTickets.Services.Whatsapp.Dto;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using GlassTickets.Services.Whatsapp.Dto;
 
 namespace GlassTickets.Services.Whatsapp;
 public class ChatAppService : IChatAppService
@@ -55,22 +56,77 @@ public class ChatAppService : IChatAppService
     private string BuildPrompt(string userMessage, TicketDraftDto draft)
     {
         var sb = new StringBuilder();
-        sb.AppendLine("You are collecting information to create a support ticket.");
-        sb.AppendLine("Here is the current ticket info:");
-        sb.AppendLine($"Location: {draft.Location ?? "unknown"}");
-        sb.AppendLine($"Category: {draft.Category ?? "unknown"}");
-        sb.AppendLine($"Description: {draft.Description ?? "unknown"}");
-        sb.AppendLine($"CustomerNumber: {draft.CustomerNumber ?? "unknown"}");
-        sb.AppendLine($"PriorityLevel: {(draft.PriorityLevel?.ToString() ?? "unknown")}");
-        sb.AppendLine($"SendUpdates: {(draft.SendUpdates.HasValue ? draft.SendUpdates.Value.ToString() : "unknown")}");
+
+        // Enhanced persona and guidelines
+        sb.AppendLine("You are a helpful municipality AI Support agent for Gauteng province. You have a sweet, friendly, and professional tone.");
+        sb.AppendLine("IMPORTANT: You only service Gauteng province. If a user mentions a location outside Gauteng, politely explain you can only help with Gauteng locations.");
         sb.AppendLine();
+
+
+        sb.AppendLine("Current ticket information collected:");
+        sb.AppendLine($"Location: {draft.Location ?? "NOT PROVIDED"}");
+        sb.AppendLine($"Category: {draft.Category ?? "NOT PROVIDED"}");
+        sb.AppendLine($"Description: {draft.Description ?? "NOT PROVIDED"}");
+        sb.AppendLine($"Customer Number: {draft.CustomerNumber ?? "NOT PROVIDED"}");
+        sb.AppendLine($"Priority Level: {(draft.PriorityLevel?.ToString() ?? "NOT DETERMINED")} (1=Low, 2=Medium, 3=High, 4=Critical)");
+        sb.AppendLine($"Send Updates: {(draft.SendUpdates.HasValue ? draft.SendUpdates.Value.ToString() : "NOT ASKED")}");
+        sb.AppendLine();
+
+
+        var missingFields = GetMissingFields(draft);
+        if (missingFields.Count > 0)
+        {
+            sb.AppendLine("MISSING INFORMATION NEEDED:");
+            foreach (var field in missingFields)
+            {
+                sb.AppendLine($"- {field}");
+            }
+            sb.AppendLine("Conversationally ask for the most important missing information first.");
+            sb.AppendLine();
+        }
+
         sb.AppendLine("User says:");
-        sb.AppendLine(userMessage);
+        sb.AppendLine($"\"{userMessage}\"");
         sb.AppendLine();
-        sb.AppendLine("Please respond with a friendly message to the user and provide the updated ticket information in JSON format like this:");
+
+        sb.AppendLine("INSTRUCTIONS:");
+        sb.AppendLine("1. Respond with a warm, friendly message");
+        sb.AppendLine("2. If location is outside Gauteng, politely decline and explain your service area");
+        sb.AppendLine("3. Extract any new information from the user's message");
+        sb.AppendLine("4. If information is still missing, ask for it conversationally (don't overwhelm - ask for 1-2 things at a time)");
+        sb.AppendLine("5. Determine priority based on urgency/impact: 1=Low (cosmetic), 2=Medium (affecting work), 3=High (major disruption), 4=Critical (emergency/safety)");
+        sb.AppendLine("6. Always end with updated JSON containing ALL information you now have");
+        sb.AppendLine();
+
+        sb.AppendLine("JSON FORMAT (include ALL fields, use actual values or leave empty strings for unknowns):");
         sb.AppendLine("{ \"Location\": \"...\", \"Category\": \"...\", \"Description\": \"...\", \"CustomerNumber\": \"...\", \"PriorityLevel\": 1, \"SendUpdates\": true }");
-        sb.AppendLine("If you don't have new info, leave fields empty or omit them.");
+
         return sb.ToString();
+    }
+
+    private List<string> GetMissingFields(TicketDraftDto draft)
+    {
+        var missing = new List<string>();
+
+        if (string.IsNullOrWhiteSpace(draft.Location))
+            missing.Add("Location (which area/building in Gauteng?)");
+
+        if (string.IsNullOrWhiteSpace(draft.Category))
+            missing.Add("Category (IT, Maintenance, Utilities, etc.)");
+
+        if (string.IsNullOrWhiteSpace(draft.Description))
+            missing.Add("Detailed description of the issue");
+
+        if (string.IsNullOrWhiteSpace(draft.CustomerNumber))
+            missing.Add("Customer/Contact number");
+
+        if (!draft.PriorityLevel.HasValue)
+            missing.Add("Priority level assessment needed");
+
+        if (!draft.SendUpdates.HasValue)
+            missing.Add("Permission to send SMS/WhatsApp updates");
+
+        return missing;
     }
 
     private TicketDraftDto ParseDraftFromAiReply(string aiReply, TicketDraftDto oldDraft)
@@ -103,7 +159,7 @@ public class ChatAppService : IChatAppService
             CustomerNumber = string.IsNullOrWhiteSpace(updated.CustomerNumber) ? oldDraft.CustomerNumber : updated.CustomerNumber,
             PriorityLevel = updated.PriorityLevel ?? oldDraft.PriorityLevel,
             SendUpdates = updated.SendUpdates ?? oldDraft.SendUpdates,
-            IsComplete = false // Will be set later
+            IsComplete = false
         };
     }
 
