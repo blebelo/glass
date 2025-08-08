@@ -6,7 +6,7 @@ namespace GlassTickets.Services.Whatsapp.Dto
     {
         public string SessionId { get; set; }
         public string ReferenceNumber { get; set; }
-        public PriorityLevelEnum? PriorityLevel { get; set; }
+        public PriorityLevelEnum PriorityLevel { get; set; }
         public string Location { get; set; }
         public string Category { get; set; }
         public string Description { get; set; }
@@ -16,7 +16,6 @@ namespace GlassTickets.Services.Whatsapp.Dto
 
         public bool IsReadyForSubmission =>
             !string.IsNullOrWhiteSpace(ReferenceNumber) &&
-            PriorityLevel.HasValue &&
             !string.IsNullOrWhiteSpace(Location) &&
             !string.IsNullOrWhiteSpace(Category) &&
             !string.IsNullOrWhiteSpace(Description) &&

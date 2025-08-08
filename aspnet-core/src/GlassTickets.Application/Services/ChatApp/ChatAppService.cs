@@ -1,4 +1,8 @@
-﻿using GlassTickets.Services.Whatsapp.Dto;
+﻿using Abp.UI;
+using GlassTickets.Domain.Tickets;
+using GlassTickets.Services.Tickets;
+using GlassTickets.Services.Tickets.Dto;
+using GlassTickets.Services.Whatsapp.Dto;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
@@ -13,11 +17,21 @@ public class ChatAppService : IChatAppService
 {
     private readonly HttpClient _httpClient;
     private readonly string _apiKey;
+    private readonly ITicketAppService _ticketAppService;
 
-    public ChatAppService(HttpClient httpClient, IConfiguration config)
+    private readonly HashSet<PriorityLevelEnum> validPriorities = new HashSet<PriorityLevelEnum>
+    {
+        PriorityLevelEnum.Critical,
+        PriorityLevelEnum.High,
+        PriorityLevelEnum.Medium,
+        PriorityLevelEnum.Low
+    };
+
+    public ChatAppService(HttpClient httpClient, IConfiguration configuration, ITicketAppService ticketAppService)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _apiKey = config["OpenAI:ApiKey"] ?? throw new ArgumentNullException("API key missing");
+        _apiKey = configuration["Gemini:ApiKey"] ?? throw new ArgumentNullException("Gemini API key not configured");
+        _ticketAppService = ticketAppService ?? throw new ArgumentNullException(nameof(ticketAppService));
     }
 
     public async Task<(string responseText, TicketDraftDto updatedDraft)> ProcessMessageAsync(string userMessage, TicketDraftDto draft)
@@ -26,31 +40,94 @@ public class ChatAppService : IChatAppService
 
         var requestBody = new
         {
-            model = "gpt-3.5-turbo",
-            messages = new[]
+            contents = new[]
             {
-                new { role = "system", content = "You are a helpful support assistant gathering ticket info." },
-                new { role = "user", content = prompt }
+                new
+                {
+                    parts = new[]
+                    {
+                        new { text = prompt }
+                    }
+                }
+            },
+            generationConfig = new
+            {
+                temperature = 0.7,
+                topK = 40,
+                topP = 0.95,
+                maxOutputTokens = 1024
+            },
+            safetySettings = new[]
+            {
+                new
+                {
+                    category = "HARM_CATEGORY_HARASSMENT",
+                    threshold = "BLOCK_MEDIUM_AND_ABOVE"
+                },
+                new
+                {
+                    category = "HARM_CATEGORY_HATE_SPEECH",
+                    threshold = "BLOCK_MEDIUM_AND_ABOVE"
+                },
+                new
+                {
+                    category = "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                    threshold = "BLOCK_MEDIUM_AND_ABOVE"
+                },
+                new
+                {
+                    category = "HARM_CATEGORY_DANGEROUS_CONTENT",
+                    threshold = "BLOCK_MEDIUM_AND_ABOVE"
+                }
             }
         };
 
-        var request = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/chat/completions");
-        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _apiKey);
+        var request = new HttpRequestMessage(HttpMethod.Post, $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={_apiKey}");
         request.Content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
 
-        var response = await _httpClient.SendAsync(request);
-        response.EnsureSuccessStatusCode();
+        try
+        {
+            var response = await _httpClient.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
 
-        var json = await response.Content.ReadAsStringAsync();
-        var openAiResponse = JsonConvert.DeserializeObject<OpenAiResponse>(json);
+            var geminiResponse = JsonConvert.DeserializeObject<GeminiResponse>(json);
 
-        var aiReply = openAiResponse?.Choices?[0]?.Message?.Content ?? "";
+            var aiReply = geminiResponse?.Candidates?[0]?.Content?.Parts?[0]?.Text ?? "";
 
-        var updatedDraft = ParseDraftFromAiReply(aiReply, draft);
+            var cleanResponseText = CleanResponseForUser(aiReply);
 
-        updatedDraft.IsComplete = updatedDraft.IsReadyForSubmission;
+            var updatedDraft = ParseDraftFromAiReply(aiReply, draft);
 
-        return (aiReply, updatedDraft);
+            updatedDraft.IsComplete = updatedDraft.IsReadyForSubmission;
+
+            // Generate Reference Number if missing or empty
+            if (string.IsNullOrWhiteSpace(updatedDraft.ReferenceNumber))
+            {
+                updatedDraft.ReferenceNumber = GenerateReference(updatedDraft.Location);
+            }
+
+            if (updatedDraft.IsComplete)
+            {
+                await _ticketAppService.CreateAsync(new TicketDto
+                {
+                    ReferenceNumber = updatedDraft.ReferenceNumber,
+                    Location = updatedDraft.Location,
+                    Category = updatedDraft.Category,
+                    Description = updatedDraft.Description,
+                    CustomerNumber = updatedDraft.CustomerNumber, // Fixed: Use CustomerNumber (not SessionId)
+                    PriorityLevel = validPriorities.Contains(updatedDraft.PriorityLevel) ? updatedDraft.PriorityLevel : draft.PriorityLevel,
+                    SendUpdates = updatedDraft.SendUpdates ?? draft.SendUpdates ?? false,
+                    Status = StatusEnum.Open
+                });
+            }
+
+            return (cleanResponseText, updatedDraft);
+        }
+        catch (Exception ex)
+        {
+            throw new UserFriendlyException("Error calling Gemini API", ex);
+        }
     }
 
     private string BuildPrompt(string userMessage, TicketDraftDto draft)
@@ -66,7 +143,12 @@ public class ChatAppService : IChatAppService
         sb.AppendLine($"Category: {draft.Category ?? "NOT PROVIDED"}");
         sb.AppendLine($"Description: {draft.Description ?? "NOT PROVIDED"}");
         sb.AppendLine($"Customer Number: {draft.CustomerNumber ?? "NOT PROVIDED"}");
-        sb.AppendLine($"Priority Level: {draft.PriorityLevel?.ToString() ?? "NOT DETERMINED"} (1=Low, 2=Medium, 3=High, 4=Critical)");
+
+        string priorityDisplay = validPriorities.Contains(draft.PriorityLevel)
+            ? draft.PriorityLevel.ToString()
+            : "NOT DETERMINED";
+        sb.AppendLine($"Priority Level: {priorityDisplay} (1=Low, 2=Medium, 3=High, 4=Critical)");
+
         sb.AppendLine($"Send Updates: {(draft.SendUpdates.HasValue ? draft.SendUpdates.Value.ToString() : "NOT ASKED")}");
         sb.AppendLine();
 
@@ -117,13 +199,47 @@ public class ChatAppService : IChatAppService
         if (string.IsNullOrWhiteSpace(draft.CustomerNumber))
             missing.Add("Customer/Contact number");
 
-        if (!draft.PriorityLevel.HasValue)
+        if (!validPriorities.Contains(draft.PriorityLevel))
             missing.Add("Priority level assessment needed");
 
         if (!draft.SendUpdates.HasValue)
             missing.Add("Permission to send SMS/WhatsApp updates");
 
         return missing;
+    }
+
+    private string GetCategoryDescription(string category)
+    {
+        if (string.IsNullOrWhiteSpace(category)) return "unknown";
+        return category.ToLower() switch
+        {
+            "water" => "water/plumbing issue",
+            "electricity" or "power" => "electricity/power issue",
+            "roads" => "road/infrastructure issue",
+            "waste" => "waste/garbage issue",
+            "housing" => "housing issue",
+            "maintenance" => "general maintenance",
+            _ => category
+        };
+    }
+
+    private string GetPriorityDescription(PriorityLevelEnum priority)
+    {
+        return priority switch
+        {
+            PriorityLevelEnum.Critical => "Critical (emergency)",
+            PriorityLevelEnum.High => "High (urgent)",
+            PriorityLevelEnum.Medium => "Medium (soon)",
+            PriorityLevelEnum.Low => "Low (when possible)",
+            _ => "unknown"
+        };
+    }
+
+    private bool IsNewConversation(TicketDraftDto draft)
+    {
+        return string.IsNullOrWhiteSpace(draft.Location) &&
+               string.IsNullOrWhiteSpace(draft.Description) &&
+               string.IsNullOrWhiteSpace(draft.Category);
     }
 
     private TicketDraftDto ParseDraftFromAiReply(string aiReply, TicketDraftDto oldDraft)
@@ -149,12 +265,12 @@ public class ChatAppService : IChatAppService
         return new TicketDraftDto
         {
             SessionId = oldDraft.SessionId,
-            ReferenceNumber = oldDraft.ReferenceNumber,
+            ReferenceNumber = string.IsNullOrWhiteSpace(updated.ReferenceNumber) ? oldDraft.ReferenceNumber : updated.ReferenceNumber,
             Location = string.IsNullOrWhiteSpace(updated.Location) ? oldDraft.Location : updated.Location,
             Category = string.IsNullOrWhiteSpace(updated.Category) ? oldDraft.Category : updated.Category,
             Description = string.IsNullOrWhiteSpace(updated.Description) ? oldDraft.Description : updated.Description,
             CustomerNumber = string.IsNullOrWhiteSpace(updated.CustomerNumber) ? oldDraft.CustomerNumber : updated.CustomerNumber,
-            PriorityLevel = updated.PriorityLevel ?? oldDraft.PriorityLevel,
+            PriorityLevel = validPriorities.Contains(updated.PriorityLevel) ? updated.PriorityLevel : oldDraft.PriorityLevel,
             SendUpdates = updated.SendUpdates ?? oldDraft.SendUpdates,
             IsComplete = false
         };
@@ -173,21 +289,62 @@ public class ChatAppService : IChatAppService
         return null;
     }
 
-    private class OpenAiResponse
+    private string GenerateReference(string location)
     {
-        [JsonProperty("choices")]
-        public Choice[] Choices { get; set; }
+        var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+        var random = new Random().Next(100, 999);
+        var locationCode = "LOC";
 
-        public class Choice
+        if (!string.IsNullOrWhiteSpace(location))
         {
-            [JsonProperty("message")]
-            public Message Message { get; set; }
+            var cleanLocation = Regex.Replace(location.ToUpper(), @"\s+", "");
+            locationCode = cleanLocation.Length >= 6 ? cleanLocation.Substring(0, 6) : cleanLocation;
         }
 
-        public class Message
+        return $"{locationCode}-{timestamp}-{random}";
+    }
+
+    private string CleanResponseForUser(string aiReply)
+    {
+        var jsonPattern = @"```json.*?```";
+        var cleanResponse = Regex.Replace(aiReply, jsonPattern, "", RegexOptions.Singleline | RegexOptions.IgnoreCase);
+
+        var bracePattern = @"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}";
+        cleanResponse = Regex.Replace(cleanResponse, bracePattern, "");
+
+        return cleanResponse.Trim();
+    }
+
+    private class GeminiResponse
+    {
+        [JsonProperty("candidates")]
+        public Candidate[] Candidates { get; set; }
+
+        public class Candidate
         {
             [JsonProperty("content")]
-            public string Content { get; set; }
+            public Content Content { get; set; }
+
+            [JsonProperty("finishReason")]
+            public string FinishReason { get; set; }
+
+            [JsonProperty("index")]
+            public int Index { get; set; }
+        }
+
+        public class Content
+        {
+            [JsonProperty("parts")]
+            public Part[] Parts { get; set; }
+
+            [JsonProperty("role")]
+            public string Role { get; set; }
+        }
+
+        public class Part
+        {
+            [JsonProperty("text")]
+            public string Text { get; set; }
         }
     }
 }

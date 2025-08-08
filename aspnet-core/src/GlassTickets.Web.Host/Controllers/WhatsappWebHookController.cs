@@ -1,6 +1,7 @@
 ﻿using GlassTickets.Services.Twilio;
 using GlassTickets.Services.Whatsapp;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -40,6 +41,7 @@ namespace GlassTickets.Web.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return StatusCode(500, $"Internal server error {ex.Message}");
             }
         }

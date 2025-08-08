@@ -33,42 +33,63 @@ namespace GlassTickets.Services.Whatsapp
             _memoryStore = memoryStore;
             _trackingService = trackingService;
             _logger = logger;
+
+            _logger.LogInformation("WhatsappChatAppService created with dependencies injected");
         }
 
         public async Task<string> HandleIncomingMessageAsync(string from, string message)
         {
+            _logger.LogInformation("HandleIncomingMessageAsync called with from='{From}', message='{Message}'", from, message);
+
             try
             {
                 if (string.IsNullOrWhiteSpace(from) || string.IsNullOrWhiteSpace(message))
+                {
+                    _logger.LogWarning("Invalid message received: 'from' or 'message' is null/empty");
                     return "❌ Invalid message received.";
-
-                _logger.LogInformation("Processing message from {From}: {Message}", from, message);
+                }
 
                 if (_trackingService.IsTrackingRequest(message))
                 {
+                    _logger.LogInformation("Message identified as tracking request: {Message}", message);
+
                     var referenceNumber = _trackingService.ExtractReferenceNumber(message);
+                    _logger.LogInformation("Extracted reference number: {ReferenceNumber}", referenceNumber);
 
                     if (string.IsNullOrWhiteSpace(referenceNumber))
                     {
+                        _logger.LogWarning("Reference number missing in tracking request");
                         return "🔍 **Track Your Ticket**\n\n" +
                                "To track your ticket, please provide your reference number.\n" +
                                "Example: JHB-123 or SANDTON-456\n\n" +
                                "You can also say: 'track JHB-123' or 'status JHB-123'";
                     }
 
-                    return await _trackingService.GetTicketStatusAsync(referenceNumber);
+                    var status = await _trackingService.GetTicketStatusAsync(referenceNumber);
+                    _logger.LogInformation("Returning ticket status for reference: {ReferenceNumber}", referenceNumber);
+                    return status;
                 }
 
-                var draft = _memoryStore.GetDraft(from) ?? new TicketDraftDto { SessionId = from };
+                var draft = _memoryStore.GetDraft(from);
+                _logger.LogInformation("Loaded draft from memory store for {From}: {@Draft}", from, draft);
+
+                if (draft == null)
+                {
+                    draft = new TicketDraftDto { SessionId = from };
+                    _logger.LogInformation("Created new draft for {From}", from);
+                }
 
                 var (responseText, updatedDraft) = await _chatAppService.ProcessMessageAsync(message, draft);
+                _logger.LogInformation("Chat service processed message. ResponseText: {ResponseText}, UpdatedDraft: {@UpdatedDraft}", responseText, updatedDraft);
 
                 if (updatedDraft.IsComplete)
                 {
+                    _logger.LogInformation("Draft is complete, creating ticket");
+
                     var finalTicket = new TicketDto
                     {
                         ReferenceNumber = updatedDraft.ReferenceNumber ?? GenerateReference(updatedDraft.Location),
-                        PriorityLevel = updatedDraft.PriorityLevel.Value,
+                        PriorityLevel = updatedDraft.PriorityLevel,
                         Location = updatedDraft.Location,
                         Category = updatedDraft.Category,
                         Description = updatedDraft.Description,
@@ -80,7 +101,10 @@ namespace GlassTickets.Services.Whatsapp
                     };
 
                     await _ticketAppService.CreateAsync(finalTicket);
+                    _logger.LogInformation("Ticket created: {@FinalTicket}", finalTicket);
+
                     _memoryStore.ClearDraft(from);
+                    _logger.LogInformation("Cleared draft for {From}", from);
 
                     var successMessage = $"✅ **Ticket Created Successfully!**\n\n" +
                                        $"📋 Reference Number: **{finalTicket.ReferenceNumber}**\n" +
@@ -90,10 +114,11 @@ namespace GlassTickets.Services.Whatsapp
                                        $"💡 **Save this reference number!** You can use it to track your ticket anytime by sending: 'track {finalTicket.ReferenceNumber}'\n\n" +
                                        $"📧 You will receive updates on this number as requested.";
 
-                    _logger.LogInformation("Ticket created successfully: {ReferenceNumber} for {From}", finalTicket.ReferenceNumber, from);
+                    _logger.LogInformation("Returning success message to user {From}", from);
                     return successMessage;
                 }
 
+                _logger.LogInformation("Draft not complete, saving updated draft for {From}", from);
                 _memoryStore.SaveDraft(from, updatedDraft);
 
                 if (string.IsNullOrWhiteSpace(responseText))
@@ -103,12 +128,13 @@ namespace GlassTickets.Services.Whatsapp
                                  "• To track a ticket: Send me your reference number (e.g., 'JHB-123')";
                 }
 
+                _logger.LogInformation("Returning responseText to user {From}: {ResponseText}", from, responseText);
                 return responseText;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing message from {From}", from);
-                return "❌ I'm sorry, I encountered an error while processing your request. Please try again in a moment.";
+                return $"❌ I'm sorry, I encountered an error while processing your request. Please try again in a moment.{ex}";
             }
         }
 
@@ -117,12 +143,16 @@ namespace GlassTickets.Services.Whatsapp
             var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
             var random = new Random().Next(100, 999);
             var locationCode = location?.ToUpper()?.Replace(" ", "").Substring(0, Math.Min(location.Length, 6)) ?? "LOC";
-            return $"{locationCode}-{timestamp}-{random}";
+
+            var reference = $"{locationCode}-{timestamp}-{random}";
+            _logger.LogInformation("Generated ticket reference: {Reference}", reference);
+
+            return reference;
         }
 
         private string GetPriorityText(PriorityLevelEnum priority)
         {
-            return priority switch
+            var priorityText = priority switch
             {
                 PriorityLevelEnum.Low => "Low (1)",
                 PriorityLevelEnum.Medium => "Medium (2)",
@@ -130,6 +160,10 @@ namespace GlassTickets.Services.Whatsapp
                 PriorityLevelEnum.Critical => "Critical (4)",
                 _ => "Unknown"
             };
+
+            _logger.LogInformation("Converted priority enum {Priority} to text '{PriorityText}'", priority, priorityText);
+
+            return priorityText;
         }
     }
 }
