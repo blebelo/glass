@@ -2,7 +2,6 @@
 using Abp.AspNetCore.Mvc.Antiforgery;
 using Abp.AspNetCore.SignalR.Hubs;
 using Abp.Castle.Logging.Log4Net;
-using Abp.Extensions;
 using Castle.Facilities.Logging;
 using GlassTickets.Configuration;
 using GlassTickets.Identity;
@@ -22,7 +21,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 
 namespace GlassTickets.Web.Host.Startup
