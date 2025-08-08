@@ -2,7 +2,8 @@
 using Abp.Modules;
 using Abp.Reflection.Extensions;
 using GlassTickets.Authorization;
-using GlassTickets.Services.Whatsapp;
+using GlassTickets.Services.ChatApp;
+using GlassTickets.Services.MemoryDraft;
 using System.Net.Http;
 
 namespace GlassTickets

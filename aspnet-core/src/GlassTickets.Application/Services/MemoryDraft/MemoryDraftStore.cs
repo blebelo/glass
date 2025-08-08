@@ -1,7 +1,7 @@
 ﻿using GlassTickets.Services.Whatsapp.Dto;
 using System.Collections.Concurrent;
 
-namespace GlassTickets.Services.Whatsapp
+namespace GlassTickets.Services.MemoryDraft
 {
 
     public class MemoryDraftStore : IMemoryDraftStore

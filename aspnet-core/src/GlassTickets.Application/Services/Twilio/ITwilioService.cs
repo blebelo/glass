@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace GlassTickets.Services.Whatsapp
+namespace GlassTickets.Services.Twilio
 {
     public interface ITwilioService
     {
