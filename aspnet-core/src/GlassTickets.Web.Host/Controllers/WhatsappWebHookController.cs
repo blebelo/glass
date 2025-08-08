@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using GlassTickets.Services.Whatsapp;
-using System.Text;
-using Microsoft.Extensions.Logging;
+﻿using GlassTickets.Services.Whatsapp;
+using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading.Tasks;
 
 namespace GlassTickets.Web.Controllers
 {
@@ -13,16 +11,13 @@ namespace GlassTickets.Web.Controllers
     {
         private readonly IWhatsAppChatAppService _whatsAppChatService;
         private readonly ITwilioService _twilioService;
-        private readonly ILogger<TwilioWebhookController> _logger;
 
         public TwilioWebhookController(
             IWhatsAppChatAppService whatsAppChatService,
-            ITwilioService twilioService,
-            ILogger<TwilioWebhookController> logger)
+            ITwilioService twilioService)
         {
             _whatsAppChatService = whatsAppChatService;
             _twilioService = twilioService;
-            _logger = logger;
         }
 
         [HttpPost("whatsapp")]
@@ -36,8 +31,6 @@ namespace GlassTickets.Web.Controllers
                 var body = form["Body"].ToString();
                 var messageId = form["MessageSid"].ToString();
 
-                _logger.LogInformation($"Received WhatsApp message from {from}: {body}");
-
                 var responseText = await _whatsAppChatService.HandleIncomingMessageAsync(from, body);
                 await _twilioService.SendWhatsAppMessageAsync(from, responseText);
                 var twimlResponse = GenerateTwiMLResponse();
@@ -46,14 +39,22 @@ namespace GlassTickets.Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing WhatsApp webhook");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, $"Internal server error {ex.Message}");
             }
+        }
+
+        [HttpPost("status")]
+        public async Task<IActionResult> HandleStatusCallback()
+        {
+            var form = await Request.ReadFormAsync();
+            var messageId = form["MessageSid"].ToString();
+            var status = form["MessageStatus"].ToString(); // sent, delivered, read, failed
+
+            return Ok();
         }
 
         private string GenerateTwiMLResponse()
         {
-            // Return empty TwiML response - we're handling replies programmatically
             return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response></Response>";
         }
     }

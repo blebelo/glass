@@ -1,10 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Configuration;
+using System;
+using System.Threading.Tasks;
 using Twilio;
 using Twilio.Rest.Api.V2010.Account;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Twilio.Types;
-using System;
 
 namespace GlassTickets.Services.Whatsapp
 {
