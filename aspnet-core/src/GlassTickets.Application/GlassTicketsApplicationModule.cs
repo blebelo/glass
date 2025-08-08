@@ -2,11 +2,13 @@
 using Abp.Modules;
 using Abp.Reflection.Extensions;
 using GlassTickets.Authorization;
+using GlassTickets.Services.Whatsapp;
+using System.Net.Http;
 
 namespace GlassTickets
 {
     [DependsOn(
-        typeof(GlassTicketsCoreModule), 
+        typeof(GlassTicketsCoreModule),
         typeof(AbpAutoMapperModule))]
     public class GlassTicketsApplicationModule : AbpModule
     {
@@ -24,6 +26,26 @@ namespace GlassTickets
             Configuration.Modules.AbpAutoMapper().Configurators.Add(
                 // Scan the assembly for classes which inherit from AutoMapper.Profile
                 cfg => cfg.AddMaps(thisAssembly)
+            );
+
+
+            // Custom Services
+            IocManager.IocContainer.Register(
+                Castle.MicroKernel.Registration.Component
+                .For<IMemoryDraftStore>()
+                .ImplementedBy<MemoryDraftStore>()
+                .LifestyleSingleton()
+            );
+            IocManager.IocContainer.Register(
+                Castle.MicroKernel.Registration.Component
+                .For<IChatAppService>()
+                .ImplementedBy<ChatAppService>()
+                .LifestyleSingleton()
+            );
+            IocManager.IocContainer.Register(
+                Castle.MicroKernel.Registration.Component
+                .For<HttpClient>()
+                .LifestyleSingleton()
             );
         }
     }
