@@ -7,6 +7,7 @@ using Abp.UI;
 using GlassTickets.Domain.Employees;
 using GlassTickets.Domain.Tickets;
 using GlassTickets.Services.Tickets.Dto;
+using GlassTickets.Services.Twilio;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,11 +20,13 @@ namespace GlassTickets.Services.Tickets
     {
         private readonly IRepository<Ticket, Guid> _ticketRepository;
         private readonly IRepository<Employee, Guid> _employeeRepository;
+        private readonly ITwilioService _twilioService;
 
-        public TicketAppService(IRepository<Ticket, Guid> ticketRepository, IRepository<Employee, Guid> employeeRepository)
+        public TicketAppService(IRepository<Ticket, Guid> ticketRepository, IRepository<Employee, Guid> employeeRepository, ITwilioService twilioService)
         {
             _ticketRepository = ticketRepository;
             _employeeRepository = employeeRepository;
+            _twilioService = twilioService;
         }
 
         public Task<TicketDto> CreateAsync(TicketDto input)
@@ -80,6 +83,7 @@ namespace GlassTickets.Services.Tickets
             ticket.LastUpdated = DateTime.Now;
             ticket.Status = StatusEnum.Assigned;
             ticket = await _ticketRepository.UpdateAsync(ticket);
+            await _twilioService.SendWhatsAppMessageAsync(ticket.CustomerNumber, $"Ticket {ticket.ReferenceNumber} is in progress. We are working on your Issue");
             return ObjectMapper.Map<TicketDto>(ticket);
         }
                      
@@ -107,7 +111,7 @@ namespace GlassTickets.Services.Tickets
 
             ticket.Status = StatusEnum.Closed;
             ticket.DateClosed = DateTime.Now;
-
+            await _twilioService.SendWhatsAppMessageAsync(ticket.CustomerNumber, $"Ticket {ticket.ReferenceNumber} has been resolved, we're glad to be at your service");
             ticket.ReasonClosed = "Ticket has been resolved.";
 
             _ticketRepository.UpdateAsync(ticket);

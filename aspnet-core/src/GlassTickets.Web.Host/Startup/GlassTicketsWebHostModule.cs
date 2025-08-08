@@ -23,7 +23,7 @@ namespace GlassTickets.Web.Host.Startup
         public override void Initialize()
         {
             IocManager.RegisterAssemblyByConvention(typeof(GlassTicketsWebHostModule).GetAssembly());
-            IocManager.RegisterAssemblyByConvention(typeof(GlassTicketsApplicationModule).GetAssembly());
+            //IocManager.RegisterAssemblyByConvention(typeof(GlassTicketsApplicationModule).GetAssembly());
 
             IocManager.IocContainer.Register(
                 Component.For<Web.Controllers.TwilioWebhookController>()
