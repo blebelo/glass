@@ -4,6 +4,7 @@ using GlassTickets.Services.Tickets;
 using GlassTickets.Services.Tickets.Dto;
 using GlassTickets.Services.Whatsapp.Dto;
 using System;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace GlassTickets.Services.Whatsapp
@@ -59,8 +60,12 @@ namespace GlassTickets.Services.Whatsapp
 
         private string GenerateReference(string location)
         {
-            var random = new Random().Next(0, 999).ToString("D3");
-            return $"{location?.ToUpper()?.Replace(" ", "")}-{random}";
+            var prefix = string.IsNullOrWhiteSpace(location)
+                    ? "GT"
+                    : location.ToUpper().Replace(" ", "");
+            var random = RandomNumberGenerator.GetInt32(0, 1000).ToString("D3");
+                return $"{prefix}-{random}";
+
         }
     }
 }
