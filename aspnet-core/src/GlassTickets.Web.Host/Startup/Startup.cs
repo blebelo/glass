@@ -6,6 +6,7 @@ using Abp.Extensions;
 using Castle.Facilities.Logging;
 using GlassTickets.Configuration;
 using GlassTickets.Identity;
+using GlassTickets.Services.Whatsapp;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -68,6 +69,13 @@ namespace GlassTickets.Web.Host.Startup
                         .AllowAnyHeader();
                 });
             });
+
+            //Chatbot Service
+            services.AddTransient<IWhatsAppChatAppService, WhatsappChatAppService>();
+            services.AddTransient<IChatAppService, ChatAppService>();
+            services.AddSingleton<IMemoryDraftStore, MemoryDraftStore>();
+            services.AddTransient<ITwilioService, TwilioService>();
+            services.AddHttpClient<IChatAppService, ChatAppService>();
 
 
             // Swagger - Enable this line and the related lines in Configure method to enable swagger UI
