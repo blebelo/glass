@@ -1,4 +1,4 @@
-﻿using GlassTickets.Services.Tickets;
+using GlassTickets.Services.Tickets;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -11,12 +11,20 @@ namespace GlassTickets.Services.TicketTracking
         private readonly ITicketAppService _ticketAppService;
         private readonly ILogger<TicketTrackingService> _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TicketTrackingService"/> class with the specified ticket application service and logger.
+        /// </summary>
         public TicketTrackingService(ITicketAppService ticketAppService, ILogger<TicketTrackingService> logger)
         {
             _ticketAppService = ticketAppService;
             _logger = logger;
         }
 
+        /// <summary>
+        /// Determines whether the provided message is a ticket tracking request based on keywords or reference number pattern.
+        /// </summary>
+        /// <param name="message">The input message to evaluate.</param>
+        /// <returns>True if the message is likely a ticket tracking request; otherwise, false.</returns>
         public bool IsTrackingRequest(string message)
         {
             if (string.IsNullOrWhiteSpace(message))
@@ -38,6 +46,11 @@ namespace GlassTickets.Services.TicketTracking
             return false;
         }
 
+        /// <summary>
+        /// Extracts a ticket reference number from the provided message, normalizing it to uppercase if found.
+        /// </summary>
+        /// <param name="message">The input string potentially containing a ticket reference number.</param>
+        /// <returns>The extracted and uppercased ticket reference number if found; otherwise, null.</returns>
         public string ExtractReferenceNumber(string message)
         {
             if (string.IsNullOrWhiteSpace(message))
@@ -55,6 +68,14 @@ namespace GlassTickets.Services.TicketTracking
             return null;
         }
 
+        /// <summary>
+        /// Asynchronously retrieves and formats the status of a ticket by its reference number.
+        /// </summary>
+        /// <param name="referenceNumber">The reference number of the ticket to look up.</param>
+        /// <returns>
+        /// A formatted string containing the ticket's status, priority, location, category, description, creation and update timestamps, and contact information if available.
+        /// Returns an error message if the reference number is invalid, the ticket is not found, or an exception occurs.
+        /// </returns>
         public async Task<string> GetTicketStatusAsync(string referenceNumber)
         {
             try
@@ -98,6 +119,11 @@ namespace GlassTickets.Services.TicketTracking
             }
         }
 
+        /// <summary>
+        /// Returns an emoji representing the specified ticket status.
+        /// </summary>
+        /// <param name="status">The status of the ticket.</param>
+        /// <returns>An emoji corresponding to the ticket status, or a question mark if the status is unrecognized.</returns>
         private string GetStatusEmoji(Domain.Tickets.StatusEnum status)
         {
             return status switch
@@ -109,6 +135,11 @@ namespace GlassTickets.Services.TicketTracking
             };
         }
 
+        /// <summary>
+        /// Returns a descriptive text label for the specified ticket priority level, including its numeric value.
+        /// </summary>
+        /// <param name="priority">The priority level enum value.</param>
+        /// <returns>A string representing the priority level and its corresponding number, or "Unknown" if the value is unrecognized.</returns>
         private string GetPriorityText(Domain.Tickets.PriorityLevelEnum priority)
         {
             return priority switch
@@ -121,6 +152,11 @@ namespace GlassTickets.Services.TicketTracking
             };
         }
 
+        /// <summary>
+        /// Returns a user-friendly message corresponding to the specified ticket status.
+        /// </summary>
+        /// <param name="status">The status of the ticket.</param>
+        /// <returns>A status-specific message string, or an empty string if the status is unrecognized.</returns>
         private string GetStatusMessage(Domain.Tickets.StatusEnum status)
         {
             return status switch

@@ -1,4 +1,4 @@
-﻿using Abp.AspNetCore;
+using Abp.AspNetCore;
 using Abp.AspNetCore.Mvc.Antiforgery;
 using Abp.AspNetCore.SignalR.Hubs;
 using Abp.Castle.Logging.Log4Net;
@@ -42,6 +42,10 @@ namespace GlassTickets.Web.Host.Startup
             _appConfiguration = env.GetAppConfiguration();
         }
 
+        /// <summary>
+        /// Configures application services and dependencies for the web host, including MVC, authentication, CORS, SignalR, Swagger, and custom application services.
+        /// </summary>
+        /// <param name="services">The service collection to which services are registered.</param>
         public void ConfigureServices(IServiceCollection services)
         {
             //MVC

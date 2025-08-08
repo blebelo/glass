@@ -1,4 +1,4 @@
-﻿using GlassTickets.Services.Whatsapp.Dto;
+using GlassTickets.Services.Whatsapp.Dto;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
@@ -53,6 +53,12 @@ public class ChatAppService : IChatAppService
         return (aiReply, updatedDraft);
     }
 
+    /// <summary>
+    /// Builds a detailed prompt for the AI support agent, incorporating the user's message, current ticket draft information, missing fields, and specific instructions for response formatting and tone.
+    /// </summary>
+    /// <param name="userMessage">The latest message from the user.</param>
+    /// <param name="draft">The current state of the ticket draft.</param>
+    /// <returns>A formatted prompt string to guide the AI's response.</returns>
     private string BuildPrompt(string userMessage, TicketDraftDto draft)
     {
         var sb = new StringBuilder();

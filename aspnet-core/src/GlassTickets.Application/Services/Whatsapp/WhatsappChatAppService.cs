@@ -1,4 +1,4 @@
-﻿using Abp.Application.Services;
+using Abp.Application.Services;
 using GlassTickets.Domain.Tickets;
 using GlassTickets.Services.ChatApp;
 using GlassTickets.Services.MemoryDraft;
@@ -20,6 +20,9 @@ namespace GlassTickets.Services.Whatsapp
         private readonly ITicketTrackingService _trackingService;
         private readonly ILogger<WhatsappChatAppService> _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WhatsappChatAppService"/> class with the required services for ticket management, chat processing, draft storage, ticket tracking, and logging.
+        /// </summary>
         public WhatsappChatAppService(
             ITicketAppService ticketAppService,
             IChatAppService chatAppService,
@@ -35,6 +38,12 @@ namespace GlassTickets.Services.Whatsapp
             _logger = logger;
         }
 
+        /// <summary>
+        /// Processes an incoming WhatsApp message to either create a new support ticket or provide the status of an existing ticket.
+        /// </summary>
+        /// <param name="from">The WhatsApp user identifier sending the message.</param>
+        /// <param name="message">The content of the incoming message.</param>
+        /// <returns>A response message indicating the result of the ticket creation or tracking request.</returns>
         public async Task<string> HandleIncomingMessageAsync(string from, string message)
         {
             try
@@ -115,6 +124,11 @@ namespace GlassTickets.Services.Whatsapp
             }
         }
 
+        /// <summary>
+        /// Generates a unique ticket reference string using a formatted location code, current timestamp, and a random three-digit number.
+        /// </summary>
+        /// <param name="location">The location associated with the ticket, used to generate the location code in the reference.</param>
+        /// <returns>A reference string in the format "LOCATIONCODE-yyyyMMddHHmmss-XXX".</returns>
         private string GenerateReference(string location)
         {
             var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
@@ -123,6 +137,11 @@ namespace GlassTickets.Services.Whatsapp
             return $"{locationCode}-{timestamp}-{random}";
         }
 
+        /// <summary>
+        /// Returns a user-friendly string representation of the specified priority level.
+        /// </summary>
+        /// <param name="priority">The priority level to convert.</param>
+        /// <returns>A string describing the priority, or "Unknown" if the value is unrecognized.</returns>
         private string GetPriorityText(PriorityLevelEnum priority)
         {
             return priority switch

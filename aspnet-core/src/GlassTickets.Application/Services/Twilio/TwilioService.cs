@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
 using Twilio;
@@ -21,6 +21,12 @@ namespace GlassTickets.Services.Twilio
             TwilioClient.Init(accountSid, authToken);
         }
 
+        /// <summary>
+        /// Sends a WhatsApp message to the specified recipient using Twilio.
+        /// </summary>
+        /// <param name="to">The recipient's WhatsApp phone number in E.164 format.</param>
+        /// <param name="message">The message body to send.</param>
+        /// <exception cref="SystemException">Thrown if the message fails to send.</exception>
         public async Task SendWhatsAppMessageAsync(string to, string message)
         {
             try

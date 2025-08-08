@@ -1,4 +1,4 @@
-﻿using Abp.Application.Services;
+using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
@@ -83,6 +83,18 @@ namespace GlassTickets.Services.Tickets
             return ObjectMapper.Map<TicketDto>(ticket);
         }
                      
+        /// <summary>
+        /// Closes a ticket by its ID, marking it as resolved and setting the close date and reason.
+        /// </summary>
+        /// <param name="input">The unique identifier of the ticket to close.</param>
+        /// <param name="employeeId">The unique identifier of the employee closing the ticket.</param>
+        /// <returns>The updated ticket as a <see cref="TicketDto"/>.</returns>
+        /// <exception cref="EntityNotFoundException">
+        /// Thrown if the ticket or employee does not exist.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if the ticket is already closed or if the employee is not assigned to the ticket.
+        /// </exception>
         public async Task<TicketDto> CloseTicketAsync(Guid input, Guid employeeId)
         {
             var ticket = await _ticketRepository.GetAsync(input);
@@ -114,6 +126,12 @@ namespace GlassTickets.Services.Tickets
             return ObjectMapper.Map<TicketDto>(ticket);
         }
 
+        /// <summary>
+        /// Retrieves a ticket by its reference number asynchronously.
+        /// </summary>
+        /// <param name="referenceNumber">The reference number of the ticket to retrieve.</param>
+        /// <returns>The ticket as a <see cref="TicketDto"/> if found; otherwise, null.</returns>
+        /// <exception cref="UserFriendlyException">Thrown if an error occurs during retrieval.</exception>
         public async Task<TicketDto> GetByReferenceNumberAsync(string referenceNumber)
         {
             try
