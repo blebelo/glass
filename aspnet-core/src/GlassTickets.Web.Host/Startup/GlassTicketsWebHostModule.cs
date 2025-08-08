@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Abp.Modules;
 using Abp.Reflection.Extensions;
 using GlassTickets.Configuration;
+using Castle.MicroKernel.Registration;
 
 namespace GlassTickets.Web.Host.Startup
 {
@@ -22,6 +23,12 @@ namespace GlassTickets.Web.Host.Startup
         public override void Initialize()
         {
             IocManager.RegisterAssemblyByConvention(typeof(GlassTicketsWebHostModule).GetAssembly());
+            IocManager.RegisterAssemblyByConvention(typeof(GlassTicketsApplicationModule).GetAssembly());
+
+            IocManager.IocContainer.Register(
+                Component.For<Web.Controllers.TwilioWebhookController>()
+                .LifestyleTransient()
+);
         }
     }
 }
