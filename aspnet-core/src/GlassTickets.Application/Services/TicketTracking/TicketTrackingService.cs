@@ -103,8 +103,7 @@ namespace GlassTickets.Services.TicketTracking
             return status switch
             {
                 Domain.Tickets.StatusEnum.Open => "🔴",
-                Domain.Tickets.StatusEnum.InProgress => "🟡",
-                Domain.Tickets.StatusEnum.Resolved => "🟢",
+                Domain.Tickets.StatusEnum.Assigned => "🟡",
                 Domain.Tickets.StatusEnum.Closed => "⚫",
                 _ => "❓"
             };
@@ -127,9 +126,8 @@ namespace GlassTickets.Services.TicketTracking
             return status switch
             {
                 Domain.Tickets.StatusEnum.Open => "\n\n💬 Your ticket has been received and is waiting to be assigned to a technician.",
-                Domain.Tickets.StatusEnum.InProgress => "\n\n🔧 Great news! A technician is currently working on your issue.",
-                Domain.Tickets.StatusEnum.Resolved => "\n\n✅ Your issue has been resolved! If you're still experiencing problems, please let us know.",
-                Domain.Tickets.StatusEnum.Closed => "\n\n📁 This ticket has been completed and closed.",
+                Domain.Tickets.StatusEnum.Assigned=> "\n\n🔧 Great news! A someone is currently working on your issue.",
+                Domain.Tickets.StatusEnum.Closed => "\n\n📁 This ticket has been completed and closed. If you're still experiencing problems, please let us know.",
                 _ => ""
             };
         }
