@@ -44,7 +44,7 @@ namespace GlassTickets.Web.Controllers
             }
         }
 
-        [HttpPost("status")]
+        [HttpGet("status")]
         public async Task<IActionResult> HandleStatusCallback()
         {
             var form = await Request.ReadFormAsync();
