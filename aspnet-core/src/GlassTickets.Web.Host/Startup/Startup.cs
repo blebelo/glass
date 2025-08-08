@@ -6,6 +6,10 @@ using Abp.Extensions;
 using Castle.Facilities.Logging;
 using GlassTickets.Configuration;
 using GlassTickets.Identity;
+using GlassTickets.Services.ChatApp;
+using GlassTickets.Services.MemoryDraft;
+using GlassTickets.Services.TicketTracking;
+using GlassTickets.Services.Twilio;
 using GlassTickets.Services.Whatsapp;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -76,8 +80,9 @@ namespace GlassTickets.Web.Host.Startup
             services.AddSingleton<IMemoryDraftStore, MemoryDraftStore>();
             services.AddTransient<ITwilioService, TwilioService>();
             services.AddHttpClient<IChatAppService, ChatAppService>();
+            services.AddTransient<ITicketTrackingService, TicketTrackingService>();
 
-
+  
             // Swagger - Enable this line and the related lines in Configure method to enable swagger UI
             ConfigureSwagger(services);
 

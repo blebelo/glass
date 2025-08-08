@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace GlassTickets.Services.Whatsapp;
+namespace GlassTickets.Services.ChatApp;
 public class ChatAppService : IChatAppService
 {
     private readonly HttpClient _httpClient;
@@ -68,7 +68,7 @@ public class ChatAppService : IChatAppService
         sb.AppendLine($"Category: {draft.Category ?? "NOT PROVIDED"}");
         sb.AppendLine($"Description: {draft.Description ?? "NOT PROVIDED"}");
         sb.AppendLine($"Customer Number: {draft.CustomerNumber ?? "NOT PROVIDED"}");
-        sb.AppendLine($"Priority Level: {(draft.PriorityLevel?.ToString() ?? "NOT DETERMINED")} (1=Low, 2=Medium, 3=High, 4=Critical)");
+        sb.AppendLine($"Priority Level: {draft.PriorityLevel?.ToString() ?? "NOT DETERMINED"} (1=Low, 2=Medium, 3=High, 4=Critical)");
         sb.AppendLine($"Send Updates: {(draft.SendUpdates.HasValue ? draft.SendUpdates.Value.ToString() : "NOT ASKED")}");
         sb.AppendLine();
 

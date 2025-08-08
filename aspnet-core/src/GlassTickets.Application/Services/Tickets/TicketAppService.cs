@@ -3,6 +3,7 @@ using Abp.Application.Services.Dto;
 using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
 using Abp.Linq.Extensions;
+using Abp.UI;
 using GlassTickets.Domain.Employees;
 using GlassTickets.Domain.Tickets;
 using GlassTickets.Services.Tickets.Dto;
@@ -112,5 +113,24 @@ namespace GlassTickets.Services.Tickets
             _ticketRepository.UpdateAsync(ticket);
             return ObjectMapper.Map<TicketDto>(ticket);
         }
+
+        public async Task<TicketDto> GetByReferenceNumberAsync(string referenceNumber)
+        {
+            try
+            {
+                var ticket = await _ticketRepository.FirstOrDefaultAsync(t => t.ReferenceNumber == referenceNumber);
+
+                if (ticket == null)
+                    return null;
+
+                return ObjectMapper.Map<TicketDto>(ticket);
+            }
+            catch (Exception ex)
+            {
+                
+                throw new UserFriendlyException("Could not find ticket");
+            }
+        }
+
     }
 }

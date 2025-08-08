@@ -5,7 +5,7 @@ using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 using Twilio.Types;
 
-namespace GlassTickets.Services.Whatsapp
+namespace GlassTickets.Services.Twilio
 {
 
     public class TwilioService : ITwilioService
@@ -34,7 +34,7 @@ namespace GlassTickets.Services.Whatsapp
                 );
 
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 throw new SystemException();
             }

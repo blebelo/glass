@@ -1,6 +1,6 @@
 ﻿using GlassTickets.Services.Whatsapp.Dto;
 
-namespace GlassTickets.Services.Whatsapp
+namespace GlassTickets.Services.MemoryDraft
 {
     public interface IMemoryDraftStore
     {

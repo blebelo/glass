@@ -1,7 +1,7 @@
 ﻿using GlassTickets.Services.Whatsapp.Dto;
 using System.Threading.Tasks;
 
-namespace GlassTickets.Services.Whatsapp
+namespace GlassTickets.Services.ChatApp
 {
     public interface IChatAppService
     {
